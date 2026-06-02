@@ -1,0 +1,3263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Halftone Playground</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0c0c0e;
+  --surf: #161618;
+  --surf2: #1e1e22;
+  --border: #2a2a32;
+  --inv-zoom: 1;
+  --text: #e2e2e8;
+  --dim: #6b6b78;
+  --muted: #42424e;
+  --accent: #3b82f6;
+  --panel-w: 310px;
+  font-family: 'SF Mono','Cascadia Code','Fira Code','Consolas',monospace;
+  font-size: 12px;
+}
+body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+
+/* ── Canvas side ─────────────────────────────────────── */
+#canvas-side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+}
+#canvas-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+  user-select: none;
+  background-color: #141414;
+  background-image: radial-gradient(circle, #2a2a2a 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+#canvas-wrap.pannable { cursor: grab; }
+#canvas-wrap.panning  { cursor: grabbing !important; }
+canvas#c {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: center center;
+  will-change: transform;
+  /* width, height, and margins are set dynamically in resize() */
+}
+/* Drop shadow + outline so a custom-size canvas reads as a "document" */
+canvas#c.custom-size {
+  box-shadow: 0 8px 48px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.07);
+}
+
+/* ── Canvas resize handles ──────────────────────────────────── */
+#canvas-handles {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform-origin: center center;
+  pointer-events: none;   /* container is pass-through */
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+#canvas-wrap:hover #canvas-handles,
+#canvas-handles.dragging { opacity: 1; }
+.ch {
+  position: absolute;
+  width: 9px; height: 9px;
+  background: #fff;
+  border: 1.5px solid #3b82f6;
+  border-radius: 2px;
+  box-sizing: border-box;
+  pointer-events: all;
+}
+/* edge midpoints — translateX/Y centres the handle on the edge, scale() counters zoom */
+.ch-n  { top:-4px;    left:50%;            transform:translateX(-50%) scale(var(--inv-zoom)); cursor:ns-resize; }
+.ch-s  { bottom:-4px; left:50%;            transform:translateX(-50%) scale(var(--inv-zoom)); cursor:ns-resize; }
+.ch-e  { right:-4px;  top:50%;             transform:translateY(-50%) scale(var(--inv-zoom)); cursor:ew-resize; }
+.ch-w  { left:-4px;   top:50%;             transform:translateY(-50%) scale(var(--inv-zoom)); cursor:ew-resize; }
+/* corners */
+.ch-nw { top:-4px;    left:-4px;  transform:scale(var(--inv-zoom)); transform-origin:top    left;  cursor:nwse-resize; }
+.ch-ne { top:-4px;    right:-4px; transform:scale(var(--inv-zoom)); transform-origin:top    right; cursor:nesw-resize; }
+.ch-sw { bottom:-4px; left:-4px;  transform:scale(var(--inv-zoom)); transform-origin:bottom left;  cursor:nesw-resize; }
+.ch-se { bottom:-4px; right:-4px; transform:scale(var(--inv-zoom)); transform-origin:bottom right; cursor:nwse-resize; }
+#drop-mask {
+  display: none;
+  position: absolute;
+  inset: 0;
+  border: 2px dashed var(--accent);
+  background: rgba(59,130,246,.08);
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  color: var(--accent);
+  letter-spacing: .1em;
+  z-index: 20;
+  pointer-events: none;
+}
+#drop-mask.on { display: flex; }
+#no-img {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--muted);
+  pointer-events: none;
+}
+#no-img svg { opacity: .25; }
+#no-img p { font-size: 11px; letter-spacing: .06em; }
+#no-img label {
+  pointer-events: all;
+  cursor: pointer;
+  border: 1px dashed var(--border);
+  border-radius: 5px;
+  padding: 9px 20px;
+  color: var(--dim);
+  font-size: 11px;
+  transition: border-color .15s, color .15s;
+}
+#no-img label:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Video playback bar */
+#video-bar {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  height: 36px;
+  background: var(--surf);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+#video-bar.active { display: flex; }
+#btn-playpause {
+  font-size: 11px;
+  width: 28px;
+  height: 22px;
+  padding: 0;
+  flex-shrink: 0;
+  text-align: center;
+}
+#seek {
+  flex: 1;
+  height: 3px;
+  cursor: pointer;
+}
+#time-disp {
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: .04em;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 72px;
+}
+.vloop-wrap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.vloop-wrap span { font-size: 10px; color: var(--dim); }
+
+/* Status bar */
+#status {
+  height: 28px;
+  border-top: 1px solid var(--border);
+  background: var(--surf);
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 20px;
+  flex-shrink: 0;
+}
+#status span { font-size: 10px; color: var(--dim); letter-spacing: .04em; }
+#status span b { color: var(--text); font-weight: 600; }
+
+/* ── Sidebar ─────────────────────────────────────────── */
+#panel {
+  width: var(--panel-w);
+  min-width: var(--panel-w);
+  background: var(--surf);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#panel-header {
+  padding: 0 12px;
+  height: 40px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+#panel-header h1 { font-size: 13px; letter-spacing: .08em; }
+#panel-header h1 span { color: var(--accent); }
+.hdr-btns { display: flex; gap: 6px; }
+#panel-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 24px;
+}
+#panel-scroll::-webkit-scrollbar { width: 5px; }
+#panel-scroll::-webkit-scrollbar-track { background: transparent; }
+#panel-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Buttons ─────────────────────────────────────────── */
+button {
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 10px;
+  background: var(--surf2);
+  color: var(--text);
+  transition: background .1s, border-color .1s;
+}
+button:hover { background: #252530; border-color: #3c3c4a; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.primary:hover { background: #2563eb; }
+
+/* ── Upload strip ────────────────────────────────────── */
+#upload-strip {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+#upload-strip label {
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--dim);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 10px;
+  background: var(--surf2);
+  transition: border-color .1s, color .1s;
+}
+#upload-strip label:hover { border-color: var(--accent); color: var(--accent); }
+#preset-sel {
+  flex: 1;
+  min-width: 0;
+}
+#btn-del-preset { display: none; color: var(--dim); padding: 4px 7px; }
+#btn-del-preset.visible { display: block; }
+#btn-del-preset:hover { color: #ef4444; border-color: #ef4444; }
+#preset-name-bar {
+  display: none;
+  gap: 6px;
+  padding: 0 12px 10px;
+  align-items: center;
+}
+#preset-name-bar.visible { display: flex; }
+#preset-name-input {
+  flex: 1;
+  font-family: inherit;
+  font-size: 11px;
+  background: var(--surf2);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  color: var(--text);
+  padding: 4px 8px;
+  outline: none;
+  min-width: 0;
+}
+
+/* ── Tween ───────────────────────────────────────────── */
+.tween-ab {
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.tween-kf-lbl { font-size: 10px; color: var(--dim); }
+.tween-kf-lbl.set { color: #22c55e; }
+.tween-play-row { display: flex; margin-top: 8px; }
+
+/* ── Accordion ───────────────────────────────────────── */
+.sec { border-bottom: 1px solid var(--border); }
+.sec-hdr {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .1s;
+}
+.sec-hdr:hover { background: var(--surf2); }
+.sec-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.sec-title { flex: 1; font-size: 10px; text-transform: uppercase; letter-spacing: .09em; font-weight: 600; }
+.sec-chev { font-size: 9px; color: var(--muted); transition: transform .18s; }
+.sec.closed .sec-chev { transform: rotate(-90deg); }
+.sec-body { padding: 8px 12px 12px; }
+.sec.closed .sec-body { display: none; }
+
+/* ── Controls ────────────────────────────────────────── */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 7px;
+}
+.row:last-child { margin-bottom: 0; }
+.lbl { min-width: 90px; font-size: 10px; color: var(--dim); flex-shrink: 0; line-height: 1.4; }
+.rhs { flex: 1; display: flex; align-items: center; gap: 5px; min-width: 0; }
+.val { font-size: 10px; color: var(--text); min-width: 40px; text-align: right; flex-shrink: 0; }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border);
+  outline: none;
+  cursor: pointer;
+  min-width: 0;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+select {
+  font-family: inherit;
+  font-size: 11px;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  padding: 3px 6px;
+  outline: none;
+  cursor: pointer;
+  flex: 1;
+}
+select:focus { border-color: var(--accent); }
+
+input[type="number"] {
+  font-family: inherit;
+  font-size: 11px;
+  background: var(--surf2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  padding: 3px 6px;
+  outline: none;
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+}
+input[type="number"]:focus { border-color: var(--accent); }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { opacity: .5; }
+
+input[type="color"] {
+  -webkit-appearance: none;
+  width: 26px; height: 20px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 1px;
+  background: var(--surf2);
+}
+input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+input[type="color"]::-webkit-color-swatch { border: none; border-radius: 2px; }
+
+.toggle {
+  position: relative;
+  width: 30px; height: 16px;
+  flex-shrink: 0;
+}
+.toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.ttrack {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.toggle input:checked + .ttrack { background: var(--accent); }
+.tthumb {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform .15s;
+  pointer-events: none;
+}
+.toggle input:checked ~ .tthumb { transform: translateX(14px); }
+
+/* CMYK-only rows */
+.cmyk-row { display: none; }
+body.cmyk .cmyk-row { display: flex; }
+body.cmyk .nocmyk-row { display: none !important; }
+
+/* ASCII-only rows */
+.ascii-row { display: none; }
+body.ascii .ascii-row { display: flex; }
+
+/* Gradient-specific rows — hidden by default, revealed by body class */
+.bg-grad-row, .fg-grad-row,
+.bg-lingrad-row, .fg-lingrad-row { display: none; }
+body.bg-grad    .bg-grad-row    { display: flex; }
+body.fg-grad    .fg-grad-row    { display: flex; }
+body.bg-lingrad .bg-lingrad-row { display: flex; }
+body.fg-lingrad .fg-lingrad-row { display: flex; }
+
+.sub { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 6px 0 4px; }
+
+/* Layer B conditional rows */
+.fg-grad-row-b, .fg-lingrad-row-b { display: none; }
+body.fg-grad-b    .fg-grad-row-b    { display: flex; }
+body.fg-lingrad-b .fg-lingrad-row-b { display: flex; }
+.ascii-row-b { display: none; }
+body.ascii-b  .ascii-row-b          { display: flex; }
+</style>
+</head>
+<body>
+
+<!-- ─── Canvas side ─────────────────────────── -->
+<div id="canvas-side">
+  <div id="canvas-wrap">
+    <canvas id="c"></canvas>
+    <div id="canvas-handles">
+      <div class="ch ch-n"  data-dir="n" ></div>
+      <div class="ch ch-s"  data-dir="s" ></div>
+      <div class="ch ch-e"  data-dir="e" ></div>
+      <div class="ch ch-w"  data-dir="w" ></div>
+      <div class="ch ch-nw" data-dir="nw"></div>
+      <div class="ch ch-ne" data-dir="ne"></div>
+      <div class="ch ch-sw" data-dir="sw"></div>
+      <div class="ch ch-se" data-dir="se"></div>
+    </div>
+    <div id="drop-mask">DROP IMAGE OR VIDEO</div>
+    <div id="no-img">
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <circle cx="8.5" cy="8.5" r="1.5"/>
+        <polyline points="21 15 16 10 5 21"/>
+      </svg>
+      <p>DRAG & DROP or open an image or video</p>
+      <label for="file-input">Open File</label>
+    </div>
+  </div>
+
+  <!-- Hidden video element for video source -->
+  <video id="source-video" style="display:none" playsinline preload="metadata" crossorigin="anonymous"></video>
+
+  <!-- Video playback controls (shown only when a video is loaded) -->
+  <div id="video-bar">
+    <button id="btn-playpause" title="Play / Pause (Space)">▶</button>
+    <input type="range" id="seek" min="0" max="1000" value="0" step="1">
+    <span id="time-disp">0:00 / 0:00</span>
+    <div class="vloop-wrap">
+      <label class="toggle"><input type="checkbox" id="video-loop" checked><span class="ttrack"></span><span class="tthumb"></span></label>
+      <span>Loop</span>
+    </div>
+  </div>
+
+  <div id="status">
+    <span>CELL <b id="s-cell">—</b></span>
+    <span>PATTERN <b id="s-pat">—</b></span>
+    <span>RESOLUTION <b id="s-res">—</b></span>
+    <span>CMYK <b id="s-cmyk">OFF</b></span>
+    <span style="margin-left:auto; display:flex; align-items:center; gap:6px;">
+      <span>ZOOM <b id="s-zoom">100%</b></span>
+      <button id="btn-zoom-out" style="font-size:13px;padding:0 7px;height:18px;line-height:1;" title="Zoom out (⌘-)">−</button>
+      <button id="btn-zoom-in"  style="font-size:13px;padding:0 7px;height:18px;line-height:1;" title="Zoom in (⌘+)">+</button>
+      <button id="btn-fit" style="font-size:10px;padding:2px 8px;height:18px;line-height:1;" title="Fit to screen (double-click canvas or ⌘0)">Fit</button>
+    </span>
+  </div>
+</div>
+
+<!-- ─── Sidebar ────────────────────────────── -->
+<aside id="panel">
+  <div id="panel-header">
+    <h1>HALF<span>TONE</span></h1>
+    <div class="hdr-btns">
+      <button id="btn-reset">↺ Reset</button>
+      <button id="btn-export" class="primary">↓ PNG</button>
+    </div>
+  </div>
+
+  <div id="upload-strip">
+    <label for="file-input">📁 Open</label>
+    <input type="file" id="file-input" accept="image/*,video/*" style="display:none">
+    <select id="preset-sel">
+      <option value="">— Presets —</option>
+      <optgroup id="user-preset-group" label="My Presets"></optgroup>
+      <optgroup label="Built-in">
+        <option value="newspaper">Classic Newspaper CMYK</option>
+        <option value="highcontrast">High-Contrast Dots</option>
+        <option value="fineline">Fine-Line Halftone</option>
+        <option value="gooey">Gooey Ink Dots</option>
+        <option value="rings">Concentric Rings</option>
+      </optgroup>
+    </select>
+    <button id="btn-save-preset" title="Save current settings as preset">+ Save</button>
+    <button id="btn-del-preset"  title="Delete selected preset">✕</button>
+  </div>
+  <div id="preset-name-bar">
+    <input type="text" id="preset-name-input" placeholder="Preset name…" maxlength="40" spellcheck="false">
+    <button id="btn-preset-ok">Save</button>
+    <button id="btn-preset-cancel">Cancel</button>
+  </div>
+
+  <div id="panel-scroll">
+
+    <!-- Image & Grid -->
+    <div class="sec" id="s-grid">
+      <div class="sec-hdr" onclick="toggleSec('s-grid')">
+        <div class="sec-dot" style="background:#3b82f6"></div>
+        <span class="sec-title" style="color:#3b82f6">Image & Grid</span>
+        <span class="sec-chev">▾</span>
+      </div>
+      <div class="sec-body">
+        <div class="row">
+          <span class="lbl">Cell Size</span>
+          <div class="rhs"><input type="range" id="pixelSize" min="2" max="80" value="12"><span class="val" id="pixelSizeV">12px</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Grid Scale</span>
+          <div class="rhs"><input type="range" id="scale" min="25" max="400" value="100"><span class="val" id="scaleV">1.00</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Hex Grid</span>
+          <div class="rhs">
+            <label class="toggle"><input type="checkbox" id="hexGrid"><span class="ttrack"></span><span class="tthumb"></span></label>
+            <span style="font-size:10px;color:var(--dim);margin-left:5px">brick row stagger</span>
+          </div>
+        </div>
+        <div class="row">
+          <span class="lbl">Canvas</span>
+          <div class="rhs"><span id="res-read" style="font-size:10px;color:var(--dim)">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas Size -->
+    <div class="sec closed" id="s-canvsize">
+      <div class="sec-hdr" onclick="toggleSec('s-canvsize')">
+        <div class="sec-dot" style="background:#0ea5e9"></div>
+        <span class="sec-title" style="color:#0ea5e9">Canvas Size</span>
+        <span class="sec-chev">▾</span>
+      </div>
+      <div class="sec-body">
+        <div class="row">
+          <span class="lbl">Preset</span>
+          <div class="rhs">
+            <select id="canvPreset">
+              <option value="">— pick a size —</option>
+              <option value="1920x1080">1920 × 1080  HD</option>
+              <option value="3840x2160">3840 × 2160  4K</option>
+              <option value="1080x1080">1080 × 1080  Square</option>
+              <option value="1080x1920">1080 × 1920  Portrait</option>
+              <option value="2480x3508">2480 × 3508  A4 @ 300 dpi</option>
+              <option value="2550x3300">2550 × 3300  Letter @ 300 dpi</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <span class="lbl">Width</span>
+          <div class="rhs">
+            <input type="number" id="canvW" min="1" max="8192" value="1920" step="1">
+            <span style="font-size:10px;color:var(--dim);flex-shrink:0">px</span>
+          </div>
+        </div>
+        <div class="row">
+          <span class="lbl">Height</span>
+          <div class="rhs">
+            <input type="number" id="canvH" min="1" max="8192" value="1080" step="1">
+            <span style="font-size:10px;color:var(--dim);flex-shrink:0">px</span>
+          </div>
+        </div>
+        <div class="row" style="margin-top:4px">
+          <span class="lbl"></span>
+          <div class="rhs" style="gap:6px">
+            <button id="btn-canv-apply" class="primary" style="flex:1;font-size:10px">Apply</button>
+            <button id="btn-canv-auto" style="flex:1;font-size:10px" title="Revert to auto fill">Auto</button>
+          </div>
+        </div>
+        <div class="row">
+          <span class="lbl">Image Fit</span>
+          <div class="rhs">
+            <select id="imgFit" style="flex:1">
+              <option value="0">Cover</option>
+              <option value="1">Contain + Bleed</option>
+              <option value="2">Actual Size</option>
+            </select>
+          </div>
+        </div>
+        <div class="row" style="margin-top:2px">
+          <span class="lbl" style="color:var(--muted)">Tip</span>
+          <span style="font-size:10px;color:var(--muted)">scroll / drag to pan &amp; zoom the view</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Source Crop -->
+    <div class="sec collapsed" id="s-crop">
+      <div class="sec-hdr" onclick="toggleSec('s-crop')">
+        <div class="sec-dot" style="background:#06b6d4"></div>
+        <span class="sec-title" style="color:#06b6d4">Source Crop</span>
+        <span class="sec-chev">▾</span>
+      </div>
+      <div class="sec-body">
+        <div class="row">
+          <span class="lbl">Zoom</span>
+          <div class="rhs">
+            <input type="range" id="srcZoom" min="100" max="800" value="100" step="1">
+            <span class="val" id="srcZoomV">1.00×</span>
+          </div>
+        </div>
+        <div class="row">
+          <span class="lbl">Offset X</span>
+          <div class="rhs">
+            <input type="range" id="srcOffX" min="0" max="100" value="50" step="1">
+            <span class="val" id="srcOffXV">0.50</span>
+          </div>
+        </div>
+        <div class="row">
+          <span class="lbl">Offset Y</span>
+          <div class="rhs">
+            <input type="range" id="srcOffY" min="0" max="100" value="50" step="1">
+            <span class="val" id="srcOffYV">0.50</span>
+          </div>
+        </div>
+        <div class="row" style="margin-top:4px">
+          <span class="lbl"></span>
+          <div class="rhs" style="gap:6px">
+            <button id="btn-crop-fill" style="flex:1;font-size:10px" title="Zoom to fill canvas (remove letterboxing)">Fill Canvas</button>
+            <button id="btn-crop-reset" style="flex:1;font-size:10px">Reset</button>
+          </div>
+        </div>
+        <div class="row" style="margin-top:2px">
+          <span class="lbl" style="color:var(--muted)">Tip</span>
+          <span style="font-size:10px;color:var(--muted)">⌥ scroll to zoom · ⌥ drag to pan</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tone -->
+    <div class="sec" id="s-tone">
+      <div class="sec-hdr" onclick="toggleSec('s-tone')">
+        <div class="sec-dot" style="background:#f59e0b"></div>
+        <span class="sec-title" style="color:#f59e0b">Tone / Coverage</span>
+        <span class="sec-chev">▾</span>
+      </div>
+      <div class="sec-body">
+        <div class="row">
+          <span class="lbl">Contrast</span>
+          <div class="rhs"><input type="range" id="contrast" min="-100" max="100" value="0"><span class="val" id="contrastV">0</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Brightness</span>
+          <div class="rhs"><input type="range" id="brightness" min="-100" max="100" value="0"><span class="val" id="brightnessV">0</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Gamma</span>
+          <div class="rhs"><input type="range" id="gamma" min="10" max="300" value="100"><span class="val" id="gammaV">1.00</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Min Coverage</span>
+          <div class="rhs"><input type="range" id="minCov" min="0" max="100" value="0"><span class="val" id="minCovV">0.00</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Max Coverage</span>
+          <div class="rhs"><input type="range" id="maxCov" min="0" max="100" value="100"><span class="val" id="maxCovV">1.00</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pattern -->
+    <div class="sec" id="s-pat">
+      <div class="sec-hdr" onclick="toggleSec('s-pat')">
+        <div class="sec-dot" style="background:#22c55e"></div>
+        <span class="sec-title" style="color:#22c55e">Pattern</span>
+        <span class="sec-chev">▾</span>
+      </div>
+      <div class="sec-body">
+        <div class="row">
+          <span class="lbl">Type</span>
+          <div class="rhs">
+            <select id="patternType">
+              <option value="0">Dots</option>
+              <option value="1">Lines</option>
+              <option value="2">Rings</option>
+              <option value="3">CMYK</option>
+              <option value="4">ASCII</option>
+              <option value="5">Mix</option>
+            </select>
+          </div>
+        </div>
+        <div class="row nocmyk-row">
+          <span class="lbl">Invert</span>
+          <div class="rhs">
+            <label class="toggle"><input type="checkbox" id="invertDots" checked><span class="ttrack"></span><span class="tthumb"></span></label>
+            <span style="font-size:10px;color:var(--dim);margin-left:5px">dark → large dots</span>
+          </div>
+        </div>
+        <div class="row nocmyk-row">
+          <span class="lbl">Angle</span>
+          <div class="rhs"><input type="range" id="angle" min="0" max="180" value="45"><span class="val" id="angleV">45°</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Dot Size</span>
+          <div class="rhs"><input type="range" id="dotSize" min="10" max="120" value="90"><span class="val" id="dotSizeV">0.90</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Edge Smooth</span>
+          <div class="rhs"><input type="range" id="smoothness" min="0" max="80" value="20"><span class="val" id="smoothnessV">2.0</span></div>
+        </div>
+        <div class="row ascii-row">
+          <span class="lbl">Variety</span>
+          <div class="rhs"><input type="range" id="asciiVariety" min="0" max="100" value="65"><span class="val" id="asciiVarietyV">0.65</span></div>
+        </div>
+
+        <!-- CMYK sub-controls -->
+        <div class="sub cmyk-row">Cyan</div>
+        <div class="row cmyk-row">
+          <span class="lbl">Angle C</span>
+          <div class="rhs"><input type="range" id="angleC" min="0" max="180" value="15"><span class="val" id="angleCv">15°</span></div>
+        </div>
+        <div class="row cmyk-row">
+          <span class="lbl">Strength C</span>
+          <div class="rhs"><input type="range" id="strengthC" min="0" max="100" value="100"><span class="val" id="strengthCv">1.00</span></div>
+        </div>
+        <div class="sub cmyk-row">Magenta</div>
+        <div class="row cmyk-row">
+          <span class="lbl">Angle M</span>
+          <div class="rhs"><input type="range" id="angleM" min="0" max="180" value="75"><span class="val" id="angleMv">75°</span></div>
+        </div>
+        <div class="row cmyk-row">
+          <span class="lbl">Strength M</span>
+          <div class="rhs"><input type="range" id="strengthM" min="0" max="100" value="100"><span class="val" id="strengthMv">1.00</span></div>
+        </div>
+        <div class="sub cmyk-row">Yellow</div>
+        <div class="row cmyk-row">
+          <span class="lbl">Angle Y</span>
+          <div class="rhs"><input type="range" id="angleY" min="0" max="180" value="0"><span class="val" id="angleYv">0°</span></div>
+        </div>
+        <div class="row cmyk-row">
+          <span class="lbl">Strength Y</span>
+          <div class="rhs"><input type="range" id="strengthY" min="0" max="100" value="100"><span class="val" id="strengthYv">1.00</span></div>
+        </div>
+        <div class="sub cmyk-row">Key (Black)</div>
+        <div class="row cmyk-row">
+          <span class="lbl">Angle K</span>
+          <div class="rhs"><input type="range" id="angleK" min="0" max="180" value="45"><span class="val" id="angleKv">45°</span></div>
+        </div>
+        <div class="row cmyk-row">
+          <span class="lbl">Strength K</span>
+          <div class="rhs"><input type="range" id="strengthK" min="0" max="100" value="100"><span class="val" id="strengthKv">1.00</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stylistic -->
+    <div class="sec" id="s-style">
+      <div class="sec-hdr" onclick="toggleSec('s-style')">
+        <div class="sec-dot" style="background:#ec4899"></div>
+        <span class="sec-title" style="color:#ec4899">Stylistic</span>
+        <span class="sec-chev">▾</span>
+      </div>
+      <div class="sec-body">
+        <div class="row">
+          <span class="lbl">Gooey Merge</span>
+          <div class="rhs"><input type="range" id="gooeyMerge" min="0" max="100" value="0"><span class="val" id="gooeyV">0.00</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Break Grid</span>
+          <div class="rhs"><input type="range" id="breakGrid" min="0" max="100" value="0"><span class="val" id="breakV">0.00</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Noise</span>
+          <div class="rhs"><input type="range" id="noiseAmt" min="0" max="100" value="0"><span class="val" id="noiseV">0.00</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Colors -->
+    <div class="sec" id="s-color">
+      <div class="sec-hdr" onclick="toggleSec('s-color')">
+        <div class="sec-dot" style="background:#a855f7"></div>
+        <span class="sec-title" style="color:#a855f7">Colors</span>
+        <span class="sec-chev">▾</span>
+      </div>
+      <div class="sec-body">
+
+        <div class="sub nocmyk-row">Background</div>
+        <div class="row nocmyk-row">
+          <span class="lbl">Mode</span>
+          <div class="rhs">
+            <select id="bgColorMode">
+              <option value="0">Solid</option>
+              <option value="1">Linear Gradient</option>
+              <option value="2">Radial Gradient</option>
+            </select>
+          </div>
+        </div>
+        <div class="row nocmyk-row">
+          <span class="lbl">Color 1</span>
+          <div class="rhs"><input type="color" id="bgColor" value="#ffffff"></div>
+        </div>
+        <div class="row nocmyk-row bg-grad-row">
+          <span class="lbl">Color 2</span>
+          <div class="rhs"><input type="color" id="bgColor2" value="#d0d8ff"></div>
+        </div>
+        <div class="row nocmyk-row bg-lingrad-row">
+          <span class="lbl">Angle</span>
+          <div class="rhs">
+            <input type="range" id="bgGradAngle" min="0" max="360" value="0">
+            <span class="val" id="bgGradAngleV">0°</span>
+          </div>
+        </div>
+
+        <div class="sub nocmyk-row" style="margin-top:10px">Foreground</div>
+        <div class="row nocmyk-row">
+          <span class="lbl">Mode</span>
+          <div class="rhs">
+            <select id="fgColorMode">
+              <option value="0">Solid</option>
+              <option value="1">Linear Gradient</option>
+              <option value="2">Radial Gradient</option>
+            </select>
+          </div>
+        </div>
+        <div class="row nocmyk-row">
+          <span class="lbl">Color 1</span>
+          <div class="rhs"><input type="color" id="fgColor" value="#000000"></div>
+        </div>
+        <div class="row nocmyk-row fg-grad-row">
+          <span class="lbl">Color 2</span>
+          <div class="rhs"><input type="color" id="fgColor2" value="#ff3080"></div>
+        </div>
+        <div class="row nocmyk-row fg-lingrad-row">
+          <span class="lbl">Angle</span>
+          <div class="rhs">
+            <input type="range" id="fgGradAngle" min="0" max="360" value="0">
+            <span class="val" id="fgGradAngleV">0°</span>
+          </div>
+        </div>
+
+        <div class="sub nocmyk-row" style="margin-top:10px">Dot Color Source</div>
+        <div class="row nocmyk-row">
+          <span class="lbl">Image Color</span>
+          <div class="rhs">
+            <label class="toggle"><input type="checkbox" id="useSrcColor"><span class="ttrack"></span><span class="tthumb"></span></label>
+            <span style="font-size:10px;color:var(--dim);margin-left:5px">dots sample the image</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Global -->
+    <div class="sec" id="s-global">
+      <div class="sec-hdr" onclick="toggleSec('s-global')">
+        <div class="sec-dot" style="background:#64748b"></div>
+        <span class="sec-title" style="color:#64748b">Global</span>
+        <span class="sec-chev">▾</span>
+      </div>
+      <div class="sec-body">
+        <div class="row">
+          <span class="lbl">Animate</span>
+          <div class="rhs">
+            <label class="toggle"><input type="checkbox" id="animate"><span class="ttrack"></span><span class="tthumb"></span></label>
+            <span style="font-size:10px;color:var(--dim);margin-left:4px">drift angle + grid</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tween -->
+    <div class="sec closed" id="s-tween">
+      <div class="sec-hdr" onclick="toggleSec('s-tween')">
+        <div class="sec-dot" style="background:#f97316"></div>
+        <span class="sec-title" style="color:#f97316">Tween</span>
+        <span class="sec-chev">▾</span>
+      </div>
+      <div class="sec-body">
+        <div class="tween-ab">
+          <button id="btn-tween-a">Set A</button>
+          <span id="tween-a-lbl" class="tween-kf-lbl">not set</span>
+          <button id="btn-tween-b">Set B</button>
+          <span id="tween-b-lbl" class="tween-kf-lbl">not set</span>
+        </div>
+        <div class="row">
+          <span class="lbl">Speed</span>
+          <div class="rhs"><input type="range" id="tween-speed" min="1" max="200" value="30"><span class="val" id="tween-speedV">0.30/s</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Position</span>
+          <div class="rhs"><input type="range" id="tween-scrub" min="0" max="1000" value="0"><span class="val" id="tween-scrubV">A</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Ping-pong</span>
+          <div class="rhs"><label class="toggle"><input type="checkbox" id="tween-pingpong" checked><span class="ttrack"></span><span class="tthumb"></span></label></div>
+        </div>
+        <div class="tween-play-row">
+          <button id="btn-tween-play" disabled style="flex:1">▶ Play</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer B -->
+    <div class="sec closed" id="s-layerb">
+      <div class="sec-hdr" onclick="toggleSec('s-layerb')">
+        <div class="sec-dot" style="background:#a855f7"></div>
+        <span class="sec-title" style="color:#a855f7">Layer B</span>
+        <span class="sec-chev">▾</span>
+      </div>
+      <div class="sec-body">
+        <div class="row">
+          <span class="lbl">Enable</span>
+          <div class="rhs">
+            <label class="toggle"><input type="checkbox" id="layerBEnabled"><span class="ttrack"></span><span class="tthumb"></span></label>
+            <span style="font-size:10px;color:var(--dim);margin-left:6px">overlay second pattern</span>
+          </div>
+        </div>
+        <div class="row">
+          <span class="lbl">Blend</span>
+          <div class="rhs">
+            <select id="layerBBlend" style="flex:1">
+              <option value="0">Normal</option>
+              <option value="1">Multiply</option>
+              <option value="2">Screen</option>
+              <option value="3">Darken</option>
+              <option value="4">Lighten</option>
+              <option value="5">Add</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <span class="lbl">Opacity</span>
+          <div class="rhs"><input type="range" id="layerBOpacity" min="0" max="100" value="100"><span class="val" id="layerBOpacityV">1.00</span></div>
+        </div>
+        <div class="sub" style="padding:0 0 2px">PATTERN</div>
+        <div class="row">
+          <span class="lbl">Type</span>
+          <div class="rhs">
+            <select id="patternTypeB" style="flex:1">
+              <option value="0">Dots</option>
+              <option value="1" selected>Lines</option>
+              <option value="2">Rings</option>
+              <option value="3">CMYK</option>
+              <option value="4">ASCII</option>
+              <option value="5">Mix</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <span class="lbl">Cell Size</span>
+          <div class="rhs"><input type="range" id="pixelSizeB" min="2" max="80" value="8"><span class="val" id="pixelSizeBV">8px</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Grid Scale</span>
+          <div class="rhs"><input type="range" id="scaleB" min="25" max="400" value="100"><span class="val" id="scaleBV">1.00</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Hex Grid</span>
+          <div class="rhs"><label class="toggle"><input type="checkbox" id="hexGridB"><span class="ttrack"></span><span class="tthumb"></span></label></div>
+        </div>
+        <div class="sub" style="padding:4px 0 2px">STYLE</div>
+        <div class="row">
+          <span class="lbl">Angle</span>
+          <div class="rhs"><input type="range" id="angleB" min="0" max="180" value="0"><span class="val" id="angleBV">0°</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Dot Size</span>
+          <div class="rhs"><input type="range" id="dotSizeB" min="10" max="130" value="90"><span class="val" id="dotSizeBV">0.90</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Smoothness</span>
+          <div class="rhs"><input type="range" id="smoothnessB" min="0" max="100" value="20"><span class="val" id="smoothnessBV">2.0</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Gooey</span>
+          <div class="rhs"><input type="range" id="gooeyMergeB" min="0" max="100" value="0"><span class="val" id="gooeyBV">0.00</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Break Grid</span>
+          <div class="rhs"><input type="range" id="breakGridB" min="0" max="100" value="0"><span class="val" id="breakBV">0.00</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Noise</span>
+          <div class="rhs"><input type="range" id="noiseAmtB" min="0" max="100" value="0"><span class="val" id="noiseBV">0.00</span></div>
+        </div>
+        <div class="row ascii-row-b">
+          <span class="lbl">ASCII Variety</span>
+          <div class="rhs"><input type="range" id="asciiVarietyB" min="0" max="100" value="65"><span class="val" id="asciiVarietyBV">0.65</span></div>
+        </div>
+        <div class="sub" style="padding:4px 0 2px">COLOR</div>
+        <div class="row">
+          <span class="lbl">FG Color</span>
+          <div class="rhs">
+            <input type="color" id="fgColorB" value="#000000">
+            <select id="fgColorModeB" style="flex:1;min-width:0">
+              <option value="0">Solid</option>
+              <option value="1">Linear</option>
+              <option value="2">Radial</option>
+            </select>
+          </div>
+        </div>
+        <div class="row fg-grad-row-b">
+          <span class="lbl">FG Color 2</span>
+          <div class="rhs"><input type="color" id="fgColor2B" value="#ff3080"></div>
+        </div>
+        <div class="row fg-lingrad-row-b">
+          <span class="lbl">FG Angle</span>
+          <div class="rhs"><input type="range" id="fgGradAngleB" min="0" max="360" value="0"><span class="val" id="fgGradAngleBV">0°</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Invert Dots</span>
+          <div class="rhs"><label class="toggle"><input type="checkbox" id="invertDotsB" checked><span class="ttrack"></span><span class="tthumb"></span></label></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Src Color</span>
+          <div class="rhs"><label class="toggle"><input type="checkbox" id="useSrcColorB"><span class="ttrack"></span><span class="tthumb"></span></label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mouse Trail -->
+    <div class="sec closed" id="s-mouse">
+      <div class="sec-hdr" onclick="toggleSec('s-mouse')">
+        <div class="sec-dot" style="background:#f59e0b"></div>
+        <span class="sec-title" style="color:#f59e0b">Mouse Trail</span>
+        <span class="sec-chev">▾</span>
+      </div>
+      <div class="sec-body">
+        <div class="row">
+          <span class="lbl">Enable</span>
+          <div class="rhs">
+            <label class="toggle"><input type="checkbox" id="mouseTrail"><span class="ttrack"></span><span class="tthumb"></span></label>
+            <span style="font-size:10px;color:var(--dim);margin-left:6px">displace dots with cursor</span>
+          </div>
+        </div>
+        <div class="row">
+          <span class="lbl">Strength</span>
+          <div class="rhs"><input type="range" id="mouseStrength" min="0" max="300" value="100"><span class="val" id="mouseStrengthV">1.00</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Radius</span>
+          <div class="rhs"><input type="range" id="mouseRadius" min="2" max="60" value="20"><span class="val" id="mouseRadiusV">20%</span></div>
+        </div>
+        <div class="row">
+          <span class="lbl">Fade</span>
+          <div class="rhs"><input type="range" id="mouseFade" min="50" max="99" value="93"><span class="val" id="mouseFadeV">0.93</span></div>
+        </div>
+        <div class="row" style="margin-top:2px">
+          <span class="lbl" style="color:var(--muted)">Tip</span>
+          <span style="font-size:10px;color:var(--muted)">⌥ drag = source crop · move mouse over canvas to trail</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end scroll -->
+</aside>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// VERTEX SHADER
+// ════════════════════════════════════════════════════════════════
+const VERT = `#version 300 es
+in vec2 a_pos;
+out vec2 v_uv;
+void main() {
+  v_uv = a_pos * 0.5 + 0.5;
+  gl_Position = vec4(a_pos, 0.0, 1.0);
+}`;
+
+// ════════════════════════════════════════════════════════════════
+// BRUSH SHADER  — ping-pong mouse-trail texture
+// r,g = velocity direction encoded as (v*0.5+0.5)  (0.5 = neutral)
+// b   = trail intensity  [0..1]
+// ════════════════════════════════════════════════════════════════
+const BRUSH_FRAG = `#version 300 es
+precision highp float;
+uniform sampler2D u_prevTrail;
+uniform vec2  u_mousePos;     // canvas UV (0..1), Y-up
+uniform vec2  u_mouseVel;     // canvas UV delta this frame
+uniform float u_brushRadius;  // gaussian radius in canvas UV [0..1]
+uniform float u_decay;        // per-frame decay  (e.g. 0.93)
+uniform int   u_mouseActive;  // 1 = cursor is over canvas
+in  vec2 v_uv;
+out vec4 fragColor;
+void main() {
+  vec4 prev = texture(u_prevTrail, v_uv);
+  // Decode — reset direction to neutral when intensity is near zero
+  vec2 decVel = prev.b > 0.001 ? prev.rg : vec2(0.5);
+  float decInt = prev.b * u_decay;
+
+  if (u_mouseActive == 1) {
+    float velLen = length(u_mouseVel);
+    if (velLen > 0.0002) {
+      float dist = length(v_uv - u_mousePos);
+      float r = max(u_brushRadius, 0.004);
+      float splat = exp(-dist * dist / (r * r));
+      float str   = smoothstep(0.0, 0.012, velLen) * splat;
+      if (str > 0.001) {
+        vec2 normVel = u_mouseVel / velLen;
+        decVel = mix(decVel, normVel * 0.5 + 0.5, str);
+        decInt = max(decInt, str);
+      }
+    }
+  }
+  fragColor = vec4(decVel, clamp(decInt, 0.0, 1.0), 1.0);
+}`;
+
+// ════════════════════════════════════════════════════════════════
+// COMPOSITE SHADER — blends Layer A (opaque) + Layer B (alpha mask)
+// ════════════════════════════════════════════════════════════════
+const COMP_FRAG = `#version 300 es
+precision highp float;
+uniform sampler2D u_layerA;    // Layer A — rgb opaque
+uniform sampler2D u_layerB;    // Layer B — rgb=ink, a=mask
+uniform int   u_compBlend;     // 0=Normal 1=Multiply 2=Screen 3=Darken 4=Lighten 5=Add
+uniform float u_compOpacity;   // Layer B master opacity [0..1]
+in  vec2 v_uv;
+out vec4 fragColor;
+void main() {
+  vec3 A = texture(u_layerA, v_uv).rgb;
+  vec4 B = texture(u_layerB, v_uv);
+  float alpha = B.a * u_compOpacity;
+  if (alpha < 0.001) { fragColor = vec4(A, 1.0); return; }
+  vec3 blended;
+  if      (u_compBlend == 1) blended = A * B.rgb;                          // Multiply
+  else if (u_compBlend == 2) blended = 1.0 - (1.0 - A) * (1.0 - B.rgb);  // Screen
+  else if (u_compBlend == 3) blended = min(A, B.rgb);                      // Darken
+  else if (u_compBlend == 4) blended = max(A, B.rgb);                      // Lighten
+  else if (u_compBlend == 5) blended = clamp(A + B.rgb, 0.0, 1.0);        // Add
+  else                       blended = B.rgb;                              // Normal
+  fragColor = vec4(mix(A, blended, alpha), 1.0);
+}`;
+
+// ════════════════════════════════════════════════════════════════
+// FRAGMENT SHADER
+// ════════════════════════════════════════════════════════════════
+const FRAG = `#version 300 es
+precision highp float;
+
+uniform sampler2D u_image;
+uniform bool  u_hasImage;
+uniform vec2  u_resolution;
+uniform float u_imageAspect;
+uniform float u_pixelSize;
+uniform float u_scale;
+uniform float u_contrast;
+uniform float u_brightness;
+uniform float u_gamma;
+uniform float u_minCov;
+uniform float u_maxCov;
+uniform int   u_patternType;   // 0=dots 1=lines 2=rings 3=cmyk 4=ascii
+uniform sampler2D u_fontAtlas; // ASCII character grid (8×8 = 64 chars)
+uniform float u_asciiVariety;  // 0=exact density, 1=max randomness per cell
+const int ASCII_NUM_CHARS = 64;
+const int ASCII_GRID      = 8;  // sqrt(NUM_CHARS) — rows and cols in atlas
+uniform float u_angle;         // radians
+uniform float u_dotSize;
+uniform float u_smoothness;
+uniform float u_gooeyMerge;    // extends dot radius past cell boundary → real bleed
+uniform float u_breakGrid;
+uniform float u_noiseAmt;
+uniform vec3  u_bgColor;
+uniform vec3  u_fgColor;
+// Color gradient uniforms (non-CMYK modes)
+uniform int   u_bgColorMode;   // 0=solid  1=linear  2=radial
+uniform vec3  u_bgColor2;      // gradient second stop
+uniform float u_bgGradAngle;   // radians, direction of linear gradient
+uniform int   u_fgColorMode;
+uniform vec3  u_fgColor2;
+uniform float u_fgGradAngle;
+uniform float u_time;
+uniform bool  u_animate;
+uniform bool  u_hexGrid;
+uniform bool  u_invertDots;   // true = dark areas → big dots (traditional halftone)
+uniform bool  u_useSrcColor;  // true = sample image color per-fragment instead of u_fgColor
+uniform float u_srcZoom;       // crop zoom into source (1.0 = full, 2.0 = 50% crop)
+uniform vec2  u_srcOffset;     // crop center in image UV (0.5,0.5 = centre)
+// CMYK
+uniform float u_angleC, u_angleM, u_angleY, u_angleK;
+uniform float u_strengthC, u_strengthM, u_strengthY, u_strengthK;
+// Mouse trail
+uniform sampler2D u_brushTexture; // ping-pong trail texture  (TEXTURE2)
+uniform bool  u_mouseTrail;
+uniform float u_mouseStrength;
+
+// Image fit / bleed
+uniform int   u_imgFit;   // 0=cover  1=contain+bleed  2=actual size (1px:1px, centered)
+uniform vec2  u_imageSize; // natural image pixel dimensions (for fit=2)
+
+// Layer B compositing
+uniform bool  u_layerBMode;  // true = output fgColor + alpha mask (for FBO composite)
+
+in  vec2 v_uv;
+out vec4 fragColor;
+
+// ── Helpers ──────────────────────────────────────────────────
+mat2 rot2(float a) { float c=cos(a),s=sin(a); return mat2(c,-s,s,c); }
+
+float hash21(vec2 p) {
+  p = fract(p * vec2(127.34, 311.71));
+  p += dot(p, p + 43.21);
+  return fract(p.x * p.y);
+}
+
+// Screen UV → image UV (cover / contain + source crop)
+// ca = canvas aspect, ia = image aspect
+vec2 toImgUV(vec2 suv, float ca, float ia) {
+  // 1. Aspect-correct mapping
+  vec2 uv = suv - 0.5;
+  if (u_imgFit == 2) {
+    // Actual size: 1 canvas pixel = 1 image pixel, centered.
+    // uv is already (suv - 0.5) = offset from canvas centre in canvas UV.
+    // Multiply by canvas size → pixel offset from centre.
+    // Divide by image size  → image UV offset from centre.
+    uv = uv * u_resolution / u_imageSize;
+  } else if (u_imgFit == 1) {
+    // Contain: image fits fully inside canvas, centered.
+    // Areas outside the image boundary get edge-clamped (bleed).
+    if (ia > ca) uv.y *= ia / ca;   // image wider  → fit width,  letterbox top/bottom
+    else         uv.x *= ca / ia;   // image taller → fit height, pillarbox left/right
+  } else {
+    // Cover (default): image fills entire canvas, crops edges.
+    if (ia > ca) uv.x *= ca / ia;   // image wider  → fit height, crop left/right
+    else         uv.y *= ia / ca;   // image taller → fit width,  crop top/bottom
+  }
+  uv += 0.5;
+
+  // Source crop: zoom in toward u_srcOffset within image UV space
+  uv = (uv - 0.5) / u_srcZoom + u_srcOffset;
+  return uv;
+}
+
+vec3 sampleImg(vec2 suv, float ca, float ia) {
+  vec2 iv = toImgUV(suv, ca, ia);
+  if (u_imgFit == 0) {
+    // Cover: anything outside image UV bounds → white (background-level coverage)
+    if (any(lessThan(iv, vec2(0.001))) || any(greaterThan(iv, vec2(0.999)))) return vec3(1.0);
+  }
+  // Contain / Actual Size: CLAMP_TO_EDGE extends edge pixels into the bleed area
+  return texture(u_image, iv).rgb;
+}
+
+float applyTone(float v) {
+  v = pow(max(v, 0.0), u_gamma);
+  v = (v - 0.5) * (1.0 + u_contrast) + 0.5 + u_brightness;
+  return clamp(v, u_minCov, u_maxCov);
+}
+
+// ── Cell centre in rotated space ──────────────────────────────
+// Applies:  1) hex/brick row stagger  2) break-grid jitter  3) mouse trail displacement
+// Ri/pivot/ca needed for mouse trail coordinate conversion; pass identity if no rotation.
+vec2 cellCentre(vec2 cID, float cellSize, mat2 Ri, vec2 pivot, float ca) {
+  vec2 ctr = (cID + 0.5) * cellSize;
+
+  // Brick stagger: odd rows shifted right by half a cell
+  if (u_hexGrid && mod(cID.y, 2.0) > 0.5) ctr.x += cellSize * 0.5;
+
+  // Per-cell random jitter
+  if (u_breakGrid > 0.0) {
+    ctr += (vec2(hash21(cID * 7.3 + 1.1), hash21(cID * 3.7 + 5.2)) - 0.5)
+           * u_breakGrid * cellSize * 0.75;
+  }
+
+  // Mouse trail displacement — displace each cell centre toward cursor velocity
+  if (u_mouseTrail) {
+    // Convert cell centre from rotated aspect-UV → screen UV (0..1)
+    vec2 aCtr = Ri * (ctr - pivot) + pivot;
+    vec2 sUV  = vec2(aCtr.x / ca, aCtr.y);  // no clamp — CLAMP_TO_EDGE extends trail past edge
+    vec4 brush = texture(u_brushTexture, sUV);
+    // rg encodes velocity direction (0.5 = neutral), b = intensity
+    vec2 vel = brush.rg * 2.0 - 1.0;
+    float intensity = brush.b;
+    if (intensity > 0.001) {
+      float velLen = length(vel);
+      if (velLen > 0.0001) {
+        // Cubic ease-in blend for smooth onset
+        float t = smoothstep(0.0, 0.5, intensity);
+        float eased = mix(t * t * t, t, 0.5);
+        vec2 fwd  = vel / velLen;
+        // Per-cell random perpendicular side — gives each dot a slightly different path
+        vec2 perp = vec2(-fwd.y, fwd.x) * sign(hash21(cID * 13.7 + 2.3) - 0.5);
+        // Displacement in screen-UV units, then convert to rotated aspect-UV
+        vec2 dispSUV = (fwd * 0.75 + perp * 0.25) * eased * u_mouseStrength * cellSize;
+        vec2 dispAUV = vec2(dispSUV.x * ca, dispSUV.y);
+        ctr += transpose(Ri) * dispAUV;
+      }
+    }
+  }
+  return ctr;
+}
+
+// ── Per-cell coverage samplers ────────────────────────────────
+float cellLuma(vec2 cID, vec2 ctrRot, mat2 Ri, vec2 pivot, float ca, float ia) {
+  vec2 sA = Ri * (ctrRot - pivot) + pivot;
+  float luma = dot(vec3(0.2126, 0.7152, 0.0722), sampleImg(vec2(sA.x/ca, sA.y), ca, ia));
+  // Invert so dark image areas → high coverage (traditional halftone: ink on paper)
+  if (u_invertDots) luma = 1.0 - luma;
+  luma = applyTone(luma);
+  if (u_noiseAmt > 0.0) {
+    luma += (hash21(cID * 2.71 + 0.5) - 0.5) * u_noiseAmt * 0.3;
+    luma = clamp(luma, 0.0, 1.0);
+  }
+  return luma;
+}
+
+float cellCmykCh(vec2 cID, vec2 ctrRot, mat2 Ri, vec2 pivot, float ca, float ia, int ch) {
+  vec2 sA = Ri * (ctrRot - pivot) + pivot;
+  vec3 rgb = sampleImg(vec2(sA.x/ca, sA.y), ca, ia);
+  float k = 1.0 - max(max(rgb.r, rgb.g), rgb.b);
+  float cov;
+  if (k > 0.999) {
+    cov = (ch == 3) ? 1.0 : 0.0;
+  } else {
+    float inv = 1.0 / (1.0 - k);
+    if      (ch == 0) cov = (1.0 - rgb.r - k) * inv;
+    else if (ch == 1) cov = (1.0 - rgb.g - k) * inv;
+    else if (ch == 2) cov = (1.0 - rgb.b - k) * inv;
+    else              cov = k;
+  }
+  cov = applyTone(cov);
+  if (u_noiseAmt > 0.0) {
+    cov += (hash21(cID * 3.1 + float(ch) * 7.3) - 0.5) * u_noiseAmt * 0.2;
+    cov = clamp(cov, 0.0, 1.0);
+  }
+  return cov;
+}
+
+// ── Radius: area-proportional + gooey bleed past cell edge ───
+// sqrt gives dot area ∝ coverage (article's maxRadius*sqrt(coverage))
+// u_gooeyMerge adds extra radius so neighbours' dots visibly merge
+float dotRadius(float cov) {
+  return sqrt(clamp(cov, 0.0, 1.0)) * u_dotSize * 0.5
+       + u_gooeyMerge * 0.35 * u_dotSize;
+}
+
+// Antialiased smoothstep edge
+// Uses a constant pixel-based fw instead of fwidth(d) — fwidth(d) spikes to
+// ~1.0 cell units at cell boundaries (where floor(rUV/cs) flips), turning
+// the smoothstep into a wide halo that renders as visible diamond grid lines.
+float edgeMask(float d, float r) {
+  if (r <= 0.0) return 0.0;
+  float fw = max(u_smoothness / u_pixelSize, 0.0005);
+  return 1.0 - smoothstep(r - fw, r + fw, d);
+}
+
+// ════════════════════════════════════════════════════════════════
+// SMOOTH UNION (metaball / gooey blend)
+// Polynomial smin — blends two SDF values with a smooth "neck".
+// k controls blend radius in the same units as the SDF (cell units here).
+float smin(float a, float b, float k) {
+  float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
+  return mix(b, a, h) - k * h * (1.0 - h);
+}
+
+// Liquid/gooey dot kernel — builds a smooth-union SDF from all
+// neighbouring dot fields, then thresholds it.  This creates the
+// organic "merging blob" look that plain radius-growth cannot.
+float kernelGooeyDot(vec2 rUV, float cs, mat2 Ri, vec2 pivot, float ca, float ia) {
+  vec2  base  = floor(rUV / cs);
+  float field = 1e9;   // start at "empty" — far from everything
+  float k     = u_gooeyMerge * 0.5;   // smooth-union blend radius (cell units)
+  float fw    = max(u_smoothness / u_pixelSize, 0.0005);
+
+  for (int dy = -1; dy <= 1; dy++) {
+    for (int dx = -1; dx <= 1; dx++) {
+      vec2  nID  = base + vec2(float(dx), float(dy));
+      vec2  nCtr = cellCentre(nID, cs, Ri, pivot, ca);
+      float cov  = cellLuma(nID, nCtr, Ri, pivot, ca, ia);
+      // Use base radius only — smin handles the blending, no need for radius inflation
+      float r    = sqrt(clamp(cov, 0.0, 1.0)) * u_dotSize * 0.5;
+      if (r <= 0.0) continue;
+
+      // Circular SDF: negative inside the dot, positive outside
+      float d = length(rUV - nCtr) / cs - r;
+      field = (k > 0.0001) ? smin(field, d, k) : min(field, d);
+    }
+  }
+
+  // Threshold combined field at the zero surface → antialiased liquid blob edge
+  return 1.0 - smoothstep(-fw, fw, field);
+}
+
+// ════════════════════════════════════════════════════════════════
+// 3×3 NEIGHBOUR KERNEL EVALUATORS
+// For each fragment we search the 3×3 grid of surrounding cells
+// and take max influence — this lets large dots bleed across cell
+// walls without clipping.
+// ════════════════════════════════════════════════════════════════
+
+float kernelDot(vec2 rUV, float cs, mat2 Ri, vec2 pivot, float ca, float ia) {
+  vec2 base = floor(rUV / cs);
+  float result = 0.0;
+  for (int dy = -1; dy <= 1; dy++) {
+    for (int dx = -1; dx <= 1; dx++) {
+      vec2  nID  = base + vec2(float(dx), float(dy));
+      vec2  nCtr = cellCentre(nID, cs, Ri, pivot, ca);
+      float cov  = cellLuma(nID, nCtr, Ri, pivot, ca, ia);
+      float d    = length(rUV - nCtr) / cs;
+      float m    = edgeMask(d, dotRadius(cov));
+      result = result + m - result * m;  // screen blend: fills gap between adjacent dots
+    }
+  }
+  return clamp(result, 0.0, 1.0);
+}
+
+float kernelRing(vec2 rUV, float cs, mat2 Ri, vec2 pivot, float ca, float ia) {
+  vec2 base = floor(rUV / cs);
+  float result = 0.0;
+  for (int dy = -1; dy <= 1; dy++) {
+    for (int dx = -1; dx <= 1; dx++) {
+      vec2  nID    = base + vec2(float(dx), float(dy));
+      vec2  nCtr   = cellCentre(nID, cs, Ri, pivot, ca);
+      float cov    = cellLuma(nID, nCtr, Ri, pivot, ca, ia);
+      float outerR = dotRadius(cov);
+      float innerR = outerR * 0.52;
+      float d  = length(rUV - nCtr) / cs;
+      float fw = max(u_smoothness / u_pixelSize, 0.0005);
+      float outer = 1.0 - smoothstep(outerR - fw, outerR + fw, d);
+      float inner = smoothstep(innerR - fw, innerR + fw, d);
+      float m = outer * inner;
+      result = result + m - result * m;  // screen blend
+    }
+  }
+  return clamp(result, 0.0, 1.0);
+}
+
+// Lines: cells only vary in the y (perpendicular) direction,
+// so a 1×3 kernel (current row ± 1) is sufficient.
+float kernelLine(vec2 rUV, float cs, mat2 Ri, vec2 pivot, float ca, float ia) {
+  vec2 base = floor(rUV / cs);
+  float result = 0.0;
+  for (int dy = -1; dy <= 1; dy++) {
+    vec2  nID   = base + vec2(0.0, float(dy));
+    vec2  nCtr  = cellCentre(nID, cs, Ri, pivot, ca);
+    float cov   = cellLuma(nID, nCtr, Ri, pivot, ca, ia);
+    float halfT = cov * 0.5 + u_gooeyMerge * 0.2;
+    float d  = abs(rUV.y - nCtr.y) / cs;
+    float fw = max(u_smoothness / u_pixelSize, 0.0005);
+    float m  = 1.0 - smoothstep(halfT - fw, halfT + fw, d);
+    result = result + m - result * m;  // screen blend
+  }
+  return clamp(result, 0.0, 1.0);
+}
+
+// ════════════════════════════════════════════════════════════════
+// MIX PATTERN — per-cell random assignment of circle / ring / triangle
+// ════════════════════════════════════════════════════════════════
+
+// Equilateral triangle SDF (IQ formulation).
+// Returns negative inside, positive outside.
+float sdTriangle(vec2 p, float r) {
+  const float k = 1.7320508; // sqrt(3)
+  p.x = abs(p.x) - r;
+  p.y = p.y + r / k;
+  if (p.x + k * p.y > 0.0) p = vec2(p.x - k * p.y, -k * p.x - p.y) * 0.5;
+  p.x -= clamp(p.x, -2.0 * r, 0.0);
+  return -length(p) * sign(p.y);
+}
+
+float kernelMix(vec2 rUV, float cs, mat2 Ri, vec2 pivot, float ca, float ia) {
+  vec2  base   = floor(rUV / cs);
+  float result = 0.0;
+  float fw     = max(u_smoothness / u_pixelSize, 0.0005);
+
+  for (int dy = -1; dy <= 1; dy++) {
+    for (int dx = -1; dx <= 1; dx++) {
+      vec2  nID  = base + vec2(float(dx), float(dy));
+      vec2  nCtr = cellCentre(nID, cs, Ri, pivot, ca);
+      float cov  = cellLuma(nID, nCtr, Ri, pivot, ca, ia);
+      float r    = dotRadius(cov);
+      if (r <= 0.0) continue;
+
+      vec2  dp    = (rUV - nCtr) / cs;   // offset from cell centre in cell units
+      int   shape = int(hash21(nID * 17.3 + 3.1) * 3.0);   // 0=circle 1=ring 2=triangle
+      float m     = 0.0;
+
+      if (shape == 0) {
+        // Circle — reuse edgeMask
+        m = edgeMask(length(dp), r);
+      } else if (shape == 1) {
+        // Ring
+        float outerR = r;
+        float innerR = outerR * 0.52;
+        float d = length(dp);
+        m = (1.0 - smoothstep(outerR - fw, outerR + fw, d))
+          *        smoothstep(innerR - fw, innerR + fw, d);
+      } else {
+        // Triangle — all pointing the same direction (tip up)
+        float d  = sdTriangle(dp, r * 0.85);
+        m = 1.0 - smoothstep(-fw, fw, d);
+      }
+
+      result = result + m - result * m;   // screen blend
+    }
+  }
+  return clamp(result, 0.0, 1.0);
+}
+
+// ════════════════════════════════════════════════════════════════
+// CELL-CENTRE COLOUR HELPERS  (used only when u_useSrcColor=true)
+// These duplicate the kernel loop to find the "winning" cell centre
+// and return its screen UV so main() can sample the image there,
+// giving every dot a single flat colour instead of a per-pixel bleed.
+// Kept separate (no "out" params) for maximum driver compatibility.
+// ════════════════════════════════════════════════════════════════
+
+// Unrotate a centre from rUV-space back to screen UV
+vec2 rCtrToSUV(vec2 rCtr, mat2 Ri, vec2 pivot, float ca) {
+  vec2 aCtr = Ri * (rCtr - pivot) + pivot;
+  return vec2(aCtr.x / ca, aCtr.y);
+}
+
+vec2 dotCellSUV(vec2 rUV, float cs, mat2 Ri, vec2 pivot, float ca, float ia) {
+  vec2  base = floor(rUV / cs);
+  float best = -1.0;
+  vec2  res  = rCtrToSUV(cellCentre(base, cs, Ri, pivot, ca), Ri, pivot, ca);
+  for (int dy = -1; dy <= 1; dy++) {
+    for (int dx = -1; dx <= 1; dx++) {
+      vec2  nID  = base + vec2(float(dx), float(dy));
+      vec2  nCtr = cellCentre(nID, cs, Ri, pivot, ca);
+      float cov  = cellLuma(nID, nCtr, Ri, pivot, ca, ia);
+      float d    = length(rUV - nCtr) / cs;
+      float m    = edgeMask(d, dotRadius(cov));
+      if (m > best) { best = m; res = rCtrToSUV(nCtr, Ri, pivot, ca); }
+    }
+  }
+  return res;
+}
+
+vec2 ringCellSUV(vec2 rUV, float cs, mat2 Ri, vec2 pivot, float ca, float ia) {
+  vec2  base = floor(rUV / cs);
+  float best = -1.0;
+  vec2  res  = rCtrToSUV(cellCentre(base, cs, Ri, pivot, ca), Ri, pivot, ca);
+  for (int dy = -1; dy <= 1; dy++) {
+    for (int dx = -1; dx <= 1; dx++) {
+      vec2  nID    = base + vec2(float(dx), float(dy));
+      vec2  nCtr   = cellCentre(nID, cs, Ri, pivot, ca);
+      float cov    = cellLuma(nID, nCtr, Ri, pivot, ca, ia);
+      float outerR = dotRadius(cov);
+      float innerR = outerR * 0.52;
+      float d  = length(rUV - nCtr) / cs;
+      float fw = max(u_smoothness / u_pixelSize, 0.0005);
+      float m  = (1.0 - smoothstep(outerR-fw, outerR+fw, d))
+               *        smoothstep(innerR-fw, innerR+fw, d);
+      if (m > best) { best = m; res = rCtrToSUV(nCtr, Ri, pivot, ca); }
+    }
+  }
+  return res;
+}
+
+vec2 lineCellSUV(vec2 rUV, float cs, mat2 Ri, vec2 pivot, float ca, float ia) {
+  vec2  base = floor(rUV / cs);
+  float best = -1.0;
+  vec2  res  = rCtrToSUV(cellCentre(base, cs, Ri, pivot, ca), Ri, pivot, ca);
+  for (int dy = -1; dy <= 1; dy++) {
+    vec2  nID   = base + vec2(0.0, float(dy));
+    vec2  nCtr  = cellCentre(nID, cs, Ri, pivot, ca);
+    float cov   = cellLuma(nID, nCtr, Ri, pivot, ca, ia);
+    float halfT = cov * 0.5 + u_gooeyMerge * 0.2;
+    float d  = abs(rUV.y - nCtr.y) / cs;
+    float fw = max(u_smoothness / u_pixelSize, 0.0005);
+    float m  = 1.0 - smoothstep(halfT - fw, halfT + fw, d);
+    if (m > best) { best = m; res = rCtrToSUV(nCtr, Ri, pivot, ca); }
+  }
+  return res;
+}
+
+float kernelCmykDot(vec2 rUV, float cs, mat2 Ri, vec2 pivot,
+                    float ca, float ia, int ch, float str) {
+  vec2 base = floor(rUV / cs);
+  float result = 0.0;
+  for (int dy = -1; dy <= 1; dy++) {
+    for (int dx = -1; dx <= 1; dx++) {
+      vec2 nID  = base + vec2(float(dx), float(dy));
+      vec2 nCtr = cellCentre(nID, cs, Ri, pivot, ca);
+      float cov = cellCmykCh(nID, nCtr, Ri, pivot, ca, ia, ch) * str;
+      float d   = length(rUV - nCtr) / cs;
+      float m   = edgeMask(d, dotRadius(cov));
+      result = result + m - result * m;  // screen blend
+    }
+  }
+  return clamp(result, 0.0, 1.0);
+}
+
+// ════════════════════════════════════════════════════════════════
+// COLOR EVALUATION  (solid / linear gradient / radial gradient)
+// suv = screen UV in 0..1 range (v_uv, not aspect-corrected)
+// angle = gradient direction in radians (0 = left→right, π/2 = bottom→top)
+// ════════════════════════════════════════════════════════════════
+vec3 evalColor(vec3 c1, vec3 c2, int mode, float angle, vec2 suv) {
+  if (mode == 0) return c1;
+  float t;
+  if (mode == 1) {
+    // Linear: project UV onto gradient direction vector
+    vec2 dir = vec2(cos(angle), sin(angle));
+    t = clamp(dot(suv - 0.5, dir) + 0.5, 0.0, 1.0);
+  } else {
+    // Radial: distance from canvas centre, mapped to 0..1 at corners
+    t = clamp(length(suv - 0.5) * 2.0, 0.0, 1.0);
+  }
+  return mix(c1, c2, t);
+}
+
+// ════════════════════════════════════════════════════════════════
+// ASCII CHARACTER KERNEL
+// 64-character vocabulary ordered sparse→dense, stored in an 8×8
+// grid atlas (512×512 px, 64×64 px per glyph slot).
+//
+// u_asciiVariety adds per-cell hash jitter so adjacent cells at
+// similar brightness pick DIFFERENT characters — this is what gives
+// the organic "hacker terminal" texture visible in the reference.
+// ════════════════════════════════════════════════════════════════
+float kernelAscii(vec2 aUV, float cs, float ca, float ia) {
+  vec2 cellID  = floor(aUV / cs);
+  vec2 cellUV  = fract(aUV / cs);   // 0..1 within this cell (square grid)
+
+  vec2 pivot = vec2(ca * 0.5, 0.5);
+  mat2 Ri    = mat2(1.0, 0.0, 0.0, 1.0);   // identity — glyphs stay upright
+  vec2 ctr   = cellCentre(cellID, cs, Ri, pivot, ca);
+
+  float luma = cellLuma(cellID, ctr, Ri, pivot, ca, ia);
+
+  // Target character: bright=sparse (index 0), dark=dense (index 63)
+  float target = (1.0 - luma) * float(ASCII_NUM_CHARS - 1);
+
+  // Per-cell random jitter ± up to ~10 chars at max variety
+  float h      = hash21(cellID * 53.29 + 17.81);
+  float jitter = (h - 0.5) * u_asciiVariety * 20.0;
+
+  int ci = clamp(int(target + jitter + 0.5), 0, ASCII_NUM_CHARS - 1);
+
+  // 2D atlas: row = ci/8, col = ci%8, each slot 64×64 px (atlas 512×512)
+  // Atlas uploaded with UNPACK_FLIP_Y=true, so row index inverts in Y.
+  int col = ci % ASCII_GRID;
+  int row = ci / ASCII_GRID;
+
+  // Scale glyph within cell using u_dotSize (same semantic as dot radius)
+  // cellUV 0..1 → scaled so glyph occupies dotSize fraction of the cell
+  vec2 scaledUV = (cellUV - 0.5) / u_dotSize + 0.5;
+  if (any(lessThan(scaledUV, vec2(0.0))) || any(greaterThan(scaledUV, vec2(1.0)))) return 0.0;
+
+  vec2 atlasUV = vec2(
+    (float(col) + scaledUV.x)           / float(ASCII_GRID),
+    (float(ASCII_GRID - 1 - row) + scaledUV.y) / float(ASCII_GRID)
+  );
+  return texture(u_fontAtlas, atlasUV).r;
+}
+
+// ════════════════════════════════════════════════════════════════
+// MAIN
+// ════════════════════════════════════════════════════════════════
+void main() {
+  if (!u_hasImage) {
+    // Dark dot grid background
+    float gridSize = 24.0;
+    vec2 cell = mod(gl_FragCoord.xy, vec2(gridSize));
+    float d = length(cell - vec2(gridSize * 0.5));
+    float dotR = 2.0;
+    float fw = 1.0;
+    float dotMask = 1.0 - smoothstep(dotR - fw, dotR + fw, d);
+    vec3 dotCol = mix(u_bgColor, clamp(u_bgColor - vec3(0.12), vec3(0.0), vec3(1.0)), dotMask);
+    fragColor = vec4(dotCol, u_layerBMode ? dotMask : 1.0);
+    return;
+  }
+
+  float ca  = u_resolution.x / u_resolution.y;
+  float ia  = u_imageAspect;
+  vec2  aUV = vec2(v_uv.x * ca, v_uv.y);   // aspect-corrected screen UV
+
+  float cs  = (u_pixelSize / u_resolution.y) / u_scale;   // cell size in aUV space
+  float liveAngle = u_animate ? u_angle + u_time * 0.04 : u_angle;
+
+  // ── CMYK — four independent rotated screens, subtractive blend ──
+  if (u_patternType == 3) {
+    vec3 result = vec3(1.0);   // white paper
+    vec3 inkC = vec3(0.0,  0.73, 0.73);
+    vec3 inkM = vec3(0.73, 0.0,  0.73);
+    vec3 inkY = vec3(0.73, 0.73, 0.0 );
+    vec3 inkK = vec3(0.06, 0.06, 0.06);
+    vec2 pivot = vec2(ca * 0.5, 0.5);
+
+    for (int ch = 0; ch < 4; ch++) {
+      float ang = (ch==0)?u_angleC:(ch==1)?u_angleM:(ch==2)?u_angleY:u_angleK;
+      float str = (ch==0)?u_strengthC:(ch==1)?u_strengthM:(ch==2)?u_strengthY:u_strengthK;
+      if (str < 0.001) continue;
+
+      float a   = u_animate ? ang + u_time * 0.02 * float(ch + 1) : ang;
+      vec2  rUV = rot2(a) * (aUV - pivot) + pivot;
+      float mask = kernelCmykDot(rUV, cs, rot2(-a), pivot, ca, ia, ch, str);
+
+      vec3 ink = (ch==0)?inkC:(ch==1)?inkM:(ch==2)?inkY:inkK;
+      // Subtractive: white × (1 − ink) × mask layering
+      result *= mix(vec3(1.0), ink, mask);
+    }
+    // Layer B mode: use luminance complement as alpha so bg shows through
+    if (u_layerBMode) {
+      float a = 1.0 - dot(result, vec3(0.2126, 0.7152, 0.0722));
+      fragColor = vec4(result, a);
+    } else {
+      fragColor = vec4(result, 1.0);
+    }
+    return;
+  }
+
+  // ── Background colour (same for all non-CMYK modes) ──────────
+  vec3 bgC = evalColor(u_bgColor, u_bgColor2, u_bgColorMode, u_bgGradAngle, v_uv);
+
+  // ── ASCII — character-per-cell mapping ───────────────────────
+  if (u_patternType == 4) {
+    float ink = kernelAscii(aUV, cs, ca, ia);
+    // Cell centre in screen UV — used for flat per-cell colour sampling
+    vec2 cellID  = floor(aUV / cs);
+    vec2 cellSUV = vec2((cellID.x + 0.5) * cs / ca, (cellID.y + 0.5) * cs);
+    vec3 fgC = u_useSrcColor
+      ? sampleImg(cellSUV, ca, ia)
+      : evalColor(u_fgColor, u_fgColor2, u_fgColorMode, u_fgGradAngle, v_uv);
+    fragColor = u_layerBMode ? vec4(fgC, ink) : vec4(mix(bgC, fgC, ink), 1.0);
+    return;
+  }
+
+  // ── Single-channel (dots / lines / rings) ────────────────────
+  vec2  pivot = vec2(ca * 0.5, 0.5);
+  mat2  R     = rot2(liveAngle);
+  mat2  Ri    = rot2(-liveAngle);
+  vec2  rUV   = R * (aUV - pivot) + pivot;
+
+  float mask = 0.0;
+  if      (u_patternType == 0) mask = (u_gooeyMerge > 0.0)
+                                       ? kernelGooeyDot(rUV, cs, Ri, pivot, ca, ia)
+                                       : kernelDot     (rUV, cs, Ri, pivot, ca, ia);
+  else if (u_patternType == 1) mask = kernelLine(rUV, cs, Ri, pivot, ca, ia);
+  else if (u_patternType == 2) mask = kernelRing(rUV, cs, Ri, pivot, ca, ia);
+  else if (u_patternType == 5) mask = kernelMix (rUV, cs, Ri, pivot, ca, ia);
+
+  // FG colour: when u_useSrcColor, sample at the dominant cell's centre so
+  // the whole dot gets one flat colour (not a per-pixel image bleed).
+  vec3 fgC;
+  if (u_useSrcColor) {
+    vec2 cellSUV = v_uv;   // fallback (background pixels, mask == 0)
+    if      (u_patternType == 0) cellSUV = dotCellSUV (rUV, cs, Ri, pivot, ca, ia);
+    else if (u_patternType == 1) cellSUV = lineCellSUV(rUV, cs, Ri, pivot, ca, ia);
+    else if (u_patternType == 2) cellSUV = ringCellSUV(rUV, cs, Ri, pivot, ca, ia);
+    else if (u_patternType == 5) cellSUV = dotCellSUV (rUV, cs, Ri, pivot, ca, ia);
+    fgC = sampleImg(cellSUV, ca, ia);
+  } else {
+    fgC = evalColor(u_fgColor, u_fgColor2, u_fgColorMode, u_fgGradAngle, v_uv);
+  }
+
+  fragColor = u_layerBMode ? vec4(fgC, mask) : vec4(mix(bgC, fgC, mask), 1.0);
+}`;
+
+// ════════════════════════════════════════════════════════════════
+// WEBGL SETUP
+// ════════════════════════════════════════════════════════════════
+const canvas = document.getElementById('c');
+const gl = canvas.getContext('webgl2', { antialias: false, preserveDrawingBuffer: true });
+if (!gl) { alert('WebGL2 not supported'); }
+
+function compileShader(src, type) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+    const log = gl.getShaderInfoLog(s);
+    console.error('Shader compile error:', log);
+    alert('Shader compile error (see console):\n' + log.slice(0, 300));
+  }
+  return s;
+}
+
+function createProgram(vsrc, fsrc) {
+  const prog = gl.createProgram();
+  gl.attachShader(prog, compileShader(vsrc, gl.VERTEX_SHADER));
+  gl.attachShader(prog, compileShader(fsrc, gl.FRAGMENT_SHADER));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    const log = gl.getProgramInfoLog(prog);
+    console.error('Program link error:', log);
+    alert('Shader link error (see console):\n' + log.slice(0, 300));
+  }
+  return prog;
+}
+
+const prog = createProgram(VERT, FRAG);
+gl.useProgram(prog);
+
+// Full-screen quad
+const quadBuf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+  -1,-1,  1,-1,  -1,1,
+  -1, 1,  1,-1,   1,1
+]), gl.STATIC_DRAW);
+const aPos = gl.getAttribLocation(prog, 'a_pos');
+gl.enableVertexAttribArray(aPos);
+gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+// Uniform locations
+const U = {};
+[
+  'u_image','u_fontAtlas','u_brushTexture','u_hasImage','u_resolution','u_imageAspect',
+  'u_mouseTrail','u_mouseStrength','u_layerBMode','u_imgFit','u_imageSize',
+  'u_pixelSize','u_scale','u_contrast','u_brightness','u_gamma',
+  'u_minCov','u_maxCov','u_patternType',
+  'u_angle','u_dotSize','u_smoothness','u_asciiVariety',
+  'u_gooeyMerge','u_breakGrid','u_noiseAmt',
+  'u_bgColor','u_fgColor',
+  'u_bgColorMode','u_bgColor2','u_bgGradAngle',
+  'u_fgColorMode','u_fgColor2','u_fgGradAngle',
+  'u_time','u_animate','u_hexGrid','u_invertDots','u_useSrcColor',
+  'u_srcZoom','u_srcOffset',
+  'u_angleC','u_angleM','u_angleY','u_angleK',
+  'u_strengthC','u_strengthM','u_strengthY','u_strengthK'
+].forEach(n => { U[n] = gl.getUniformLocation(prog, n); });
+
+// ════════════════════════════════════════════════════════════════
+// FONT ATLAS  (TEXTURE1) — 8×8 grid of 64×64 px glyph slots
+// 64 characters ordered sparse→dense (space → M).
+// Rendered white-on-black so .r channel = ink presence in shader.
+// ════════════════════════════════════════════════════════════════
+const ASCII_CHARS = [
+  // Row 0 — near-invisible / whitespace
+  ' ', ' ', '.', '`',  "'", ',', ':', ';',
+  // Row 1 — punctuation / single strokes
+  '-', '~', '^', '_',  '!', '|', 'i', 'l',
+  // Row 2 — diagonals / thin glyphs
+  '/', '\\','1', 'r',  'c', 'v', 't', 'z',
+  // Row 3 — medium weight
+  'x', 'n', 'u', 'j',  '+', '=', 'f', 'y',
+  // Row 4 — brackets / numbers
+  '7', '>', '<', '[',  ']', '(', ')', '{',
+  // Row 5 — round / mid-dense
+  '}', 'o', 'e', 'k',  's', 'd', 'h', 'b',
+  // Row 6 — heavy
+  'p', 'q', 'a', 'g',  'w', 'D', 'K', 'P',
+  // Row 7 — maximum density
+  'S', 'Z', 'm', '#',  '&', 'W', '@', 'M'
+];
+const ATLAS_COLS   = 8;
+const ATLAS_ROWS   = 8;
+const ATLAS_CELL   = 32;   // px per glyph slot — smaller = less compression at typical cell sizes
+
+(function buildFontAtlas() {
+  const W = ATLAS_CELL * ATLAS_COLS;   // 256
+  const H = ATLAS_CELL * ATLAS_ROWS;   // 256
+
+  const ac  = document.createElement('canvas');
+  ac.width  = W;
+  ac.height = H;
+  const ctx = ac.getContext('2d');
+
+  // Black background
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, W, H);
+
+  // White glyphs — bold monospace at 22px in a 32px square slot
+  // Keeping font smaller than slot gives a 1-2px safety margin so
+  // characters don't bleed across cells in mipmap levels.
+  ctx.fillStyle    = '#fff';
+  ctx.font         = `bold 22px "Courier New", Courier, monospace`;
+  ctx.textBaseline = 'middle';
+  ctx.textAlign    = 'center';
+
+  ASCII_CHARS.forEach((ch, idx) => {
+    const col = idx % ATLAS_COLS;
+    const row = Math.floor(idx / ATLAS_COLS);
+    const cx  = col * ATLAS_CELL + ATLAS_CELL / 2;
+    const cy  = row * ATLAS_CELL + ATLAS_CELL / 2;
+    ctx.fillText(ch, cx, cy);
+  });
+
+  // Upload as TEXTURE1 with Y-flip (matches image texture convention)
+  const fontAtlasTex = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, fontAtlasTex);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ac);
+  // Mipmaps are CRITICAL — without them, downscaling 32px→12px causes
+  // severe aliasing that turns characters into horizontal scanline stripes.
+  gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);   // crisp when cells are large
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+  // Lock this atlas to TEXTURE1 permanently; restore TEXTURE0 as active
+  gl.uniform1i(U.u_fontAtlas, 1);
+  gl.activeTexture(gl.TEXTURE0);   // leave TEXTURE0 active so image uploads go to the right unit
+})();
+
+// ════════════════════════════════════════════════════════════════
+// BRUSH PROGRAM + PING-PONG FBOs  (mouse trail)
+// ════════════════════════════════════════════════════════════════
+const BRUSH_RES = 256;   // trail texture resolution (square)
+
+// Create brush shader program — force a_pos to location 0 before linking
+const brushProg = (() => {
+  const p = gl.createProgram();
+  const vs = (() => { const s = gl.createShader(gl.VERTEX_SHADER);   gl.shaderSource(s, VERT); gl.compileShader(s); return s; })();
+  const fs = (() => { const s = gl.createShader(gl.FRAGMENT_SHADER); gl.shaderSource(s, BRUSH_FRAG); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error('Brush shader error:', gl.getShaderInfoLog(s));
+    return s;
+  })();
+  gl.attachShader(p, vs);
+  gl.attachShader(p, fs);
+  gl.bindAttribLocation(p, 0, 'a_pos');   // ensure same location as main prog
+  gl.linkProgram(p);
+  return p;
+})();
+
+const BU = {};
+['u_prevTrail','u_mousePos','u_mouseVel','u_brushRadius','u_decay','u_mouseActive']
+  .forEach(n => { BU[n] = gl.getUniformLocation(brushProg, n); });
+
+function makeBrushFBO() {
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, BRUSH_RES, BRUSH_RES, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  const fb = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  gl.clearColor(0.5, 0.5, 0.0, 1.0);   // rg=0.5 (neutral velocity), b=0 (no intensity)
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  return { fb, tex };
+}
+const brushFBO = { read: makeBrushFBO(), write: makeBrushFBO() };
+
+// Lock brush texture to TEXTURE2 permanently
+gl.uniform1i(U.u_brushTexture, 2);
+gl.activeTexture(gl.TEXTURE2);
+gl.bindTexture(gl.TEXTURE_2D, brushFBO.read.tex);
+gl.activeTexture(gl.TEXTURE0);
+
+// ════════════════════════════════════════════════════════════════
+// COMPOSITE PROGRAM + LAYER FBOs
+// ════════════════════════════════════════════════════════════════
+const compProg = (() => {
+  const p = gl.createProgram();
+  const vs = (() => { const s = gl.createShader(gl.VERTEX_SHADER);   gl.shaderSource(s, VERT); gl.compileShader(s); return s; })();
+  const fs = (() => { const s = gl.createShader(gl.FRAGMENT_SHADER); gl.shaderSource(s, COMP_FRAG); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error('Comp shader:', gl.getShaderInfoLog(s));
+    return s;
+  })();
+  gl.attachShader(p, vs); gl.attachShader(p, fs);
+  gl.bindAttribLocation(p, 0, 'a_pos');
+  gl.linkProgram(p);
+  return p;
+})();
+
+const CU = {};
+['u_layerA','u_layerB','u_compBlend','u_compOpacity']
+  .forEach(n => { CU[n] = gl.getUniformLocation(compProg, n); });
+
+function makeLayerFBO(w, h) {
+  // Use a scratch unit (TEXTURE6) so we never disturb the image (TEXTURE0),
+  // font atlas (TEXTURE1), or brush (TEXTURE2) bindings.
+  gl.activeTexture(gl.TEXTURE6);
+  const t = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  const fb = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  gl.activeTexture(gl.TEXTURE0);   // restore safe default unit
+  return { fb, tex: t, w, h };
+}
+let layerFBOs = { a: null, b: null };
+
+function ensureLayerFBOs() {
+  const w = canvas.width, h = canvas.height;
+  if (!w || !h) return;
+  if (layerFBOs.a && layerFBOs.a.w === w && layerFBOs.a.h === h) return;
+  if (layerFBOs.a) { gl.deleteFramebuffer(layerFBOs.a.fb); gl.deleteTexture(layerFBOs.a.tex); }
+  if (layerFBOs.b) { gl.deleteFramebuffer(layerFBOs.b.fb); gl.deleteTexture(layerFBOs.b.tex); }
+  layerFBOs.a = makeLayerFBO(w, h);
+  layerFBOs.b = makeLayerFBO(w, h);
+  _lastVidTime = -1;   // force video texture re-upload after canvas/FBO resize
+}
+
+// ── Mouse tracking ─────────────────────────────────────────────
+const mouseState = { x: 0.5, y: 0.5, prevX: 0.5, prevY: 0.5, over: false };
+
+// ── Texture / source state ────────────────────────────────────
+let tex        = null;
+let imgAspect  = 1.0;
+let hasImage   = false;
+let sourceType = null;   // 'image' | 'video'
+const videoEl  = document.getElementById('source-video');
+
+// ── Canvas size state ─────────────────────────────────────────
+// null  = auto (fills the wrap container at DPR)
+// {w,h} = fixed render resolution, canvas shown at 1:1 CSS px,
+//         viewport zoom auto-fits it inside the wrap.
+let customSize = { w: 512, h: 512 };
+let imgNaturalW = 512, imgNaturalH = 512;   // track source dims for "auto" reset
+
+function initTex(source, w, h) {
+  if (!tex) tex = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE0);   // always target the image unit
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  imgAspect = w / h;
+  hasImage  = true;
+  get('no-img').style.display = 'none';
+}
+
+// Offscreen 2D canvas used to downscale video frames before GPU upload.
+// Keeps texture uploads small regardless of the source video's native resolution.
+const _vidCanvas = document.createElement('canvas');
+const _vidCtx    = _vidCanvas.getContext('2d', { alpha: false, willReadFrequently: false });
+const MAX_VID_TEX = 1024;   // longest-side cap for the video texture (px)
+let   _lastVidTime = -1;    // avoid re-uploading the same frame twice
+
+function uploadVideoFrame() {
+  if (videoEl.readyState < 2) return;   // HAVE_CURRENT_DATA
+
+  // Skip if the video hasn't advanced to a new frame (paused, or render > video fps)
+  const t = videoEl.currentTime;
+  if (t === _lastVidTime) return;
+  _lastVidTime = t;
+
+  // Downscale to MAX_VID_TEX on the longest side
+  const vw = videoEl.videoWidth  || 1;
+  const vh = videoEl.videoHeight || 1;
+  const s  = Math.min(1, MAX_VID_TEX / Math.max(vw, vh));
+  const tw = Math.max(1, Math.round(vw * s));
+  const th = Math.max(1, Math.round(vh * s));
+
+  if (_vidCanvas.width !== tw || _vidCanvas.height !== th) {
+    _vidCanvas.width  = tw;
+    _vidCanvas.height = th;
+  }
+  _vidCtx.drawImage(videoEl, 0, 0, tw, th);
+
+  gl.activeTexture(gl.TEXTURE0);   // always unit 0 — never corrupt font atlas on TEXTURE1
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, _vidCanvas);
+}
+
+// ════════════════════════════════════════════════════════════════
+// STATE & DEFAULTS
+// ════════════════════════════════════════════════════════════════
+const DEFAULTS = {
+  pixelSize: 12, scale: 100,
+  contrast: 0, brightness: 0, gamma: 100,
+  minCov: 0, maxCov: 100,
+  patternType: 0, angle: 45,
+  dotSize: 90, smoothness: 20, asciiVariety: 65,
+  gooeyMerge: 0, breakGrid: 0, noiseAmt: 0,
+  bgColor: '#ffffff', fgColor: '#000000',
+  bgColorMode: 0, bgColor2: '#d0d8ff', bgGradAngle: 0,
+  fgColorMode: 0, fgColor2: '#ff3080', fgGradAngle: 0,
+  animate: false,
+  hexGrid: false,
+  invertDots: true,
+  useSrcColor: false,
+  mouseTrail: false,
+  mouseStrength: 100,
+  mouseRadius: 20,
+  mouseFade: 93,
+  // Layer B
+  layerBEnabled: false,
+  layerBBlend: 0,
+  layerBOpacity: 100,
+  patternTypeB: 1,
+  pixelSizeB: 8,
+  scaleB: 100,
+  hexGridB: false,
+  angleB: 0,
+  dotSizeB: 90,
+  smoothnessB: 20,
+  gooeyMergeB: 0,
+  breakGridB: 0,
+  noiseAmtB: 0,
+  asciiVarietyB: 65,
+  fgColorB: '#000000',
+  fgColorModeB: 0,
+  fgColor2B: '#ff3080',
+  fgGradAngleB: 0,
+  invertDotsB: true,
+  useSrcColorB: false,
+  imgFit: 0,
+  srcZoom: 100, srcOffX: 50, srcOffY: 50,
+  angleC: 15, angleM: 75, angleY: 0, angleK: 45,
+  strengthC: 100, strengthM: 100, strengthY: 100, strengthK: 100,
+};
+
+const PRESETS = {
+  newspaper: {
+    pixelSize:10, patternType:3, dotSize:95, smoothness:15, gooeyMerge:20,
+    angleC:15, angleM:75, angleY:0, angleK:45,
+    strengthC:100, strengthM:100, strengthY:100, strengthK:100,
+    contrast:10, brightness:0, gamma:100, breakGrid:0, noiseAmt:5
+  },
+  highcontrast: {
+    pixelSize:8, patternType:0, angle:45, dotSize:95, smoothness:10,
+    contrast:60, brightness:5, gamma:80, gooeyMerge:0, breakGrid:0, noiseAmt:0,
+    bgColor:'#ffffff', fgColor:'#000000'
+  },
+  fineline: {
+    pixelSize:4, patternType:1, angle:30, smoothness:10,
+    contrast:20, brightness:0, gamma:100, gooeyMerge:0, breakGrid:0, noiseAmt:0,
+    bgColor:'#ffffff', fgColor:'#1a1a1a'
+  },
+  gooey: {
+    pixelSize:20, patternType:0, angle:45, dotSize:100, smoothness:25,
+    gooeyMerge:80, breakGrid:25, noiseAmt:20,
+    contrast:20, brightness:-5, gamma:90,
+    bgColor:'#f5f0e0', fgColor:'#180800'
+  },
+  rings: {
+    pixelSize:14, patternType:2, angle:45, dotSize:95, smoothness:15,
+    contrast:30, brightness:0, gamma:100, gooeyMerge:10, breakGrid:5, noiseAmt:8,
+    bgColor:'#ffffff', fgColor:'#000000'
+  },
+};
+
+// ════════════════════════════════════════════════════════════════
+// UI HELPERS
+// ════════════════════════════════════════════════════════════════
+function toggleSec(id) { document.getElementById(id).classList.toggle('closed'); }
+
+function get(id) { return document.getElementById(id); }
+
+function readState() {
+  return {
+    pixelSize:    +get('pixelSize').value,
+    scale:        +get('scale').value / 100,
+    contrast:     +get('contrast').value / 100,
+    brightness:   +get('brightness').value / 100,
+    gamma:        +get('gamma').value / 100,
+    minCov:       +get('minCov').value / 100,
+    maxCov:       +get('maxCov').value / 100,
+    patternType:  +get('patternType').value,
+    angle:        +get('angle').value * Math.PI / 180,
+    dotSize:      +get('dotSize').value / 100,
+    smoothness:   +get('smoothness').value / 10,
+    asciiVariety: +get('asciiVariety').value / 100,
+    gooeyMerge:   +get('gooeyMerge').value / 100,
+    breakGrid:    +get('breakGrid').value / 100,
+    noiseAmt:     +get('noiseAmt').value / 100,
+    bgColor:       hexToRgb(get('bgColor').value),
+    fgColor:       hexToRgb(get('fgColor').value),
+    bgColorMode:  +get('bgColorMode').value,
+    bgColor2:      hexToRgb(get('bgColor2').value),
+    bgGradAngle:  +get('bgGradAngle').value * Math.PI / 180,
+    fgColorMode:  +get('fgColorMode').value,
+    fgColor2:      hexToRgb(get('fgColor2').value),
+    fgGradAngle:  +get('fgGradAngle').value * Math.PI / 180,
+    animate:       get('animate').checked,
+    hexGrid:       get('hexGrid').checked,
+    invertDots:    get('invertDots').checked,
+    useSrcColor:   get('useSrcColor').checked,
+    imgFit:        +get('imgFit').value,
+    srcZoom:       +get('srcZoom').value / 100,
+    srcOffX:       +get('srcOffX').value / 100,
+    srcOffY:       +get('srcOffY').value / 100,
+    angleC:       +get('angleC').value * Math.PI / 180,
+    angleM:       +get('angleM').value * Math.PI / 180,
+    angleY:       +get('angleY').value * Math.PI / 180,
+    angleK:       +get('angleK').value * Math.PI / 180,
+    strengthC:    +get('strengthC').value / 100,
+    strengthM:    +get('strengthM').value / 100,
+    strengthY:    +get('strengthY').value / 100,
+    strengthK:    +get('strengthK').value / 100,
+  };
+}
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16) / 255;
+  const g = parseInt(hex.slice(3,5),16) / 255;
+  const b = parseInt(hex.slice(5,7),16) / 255;
+  return [r,g,b];
+}
+
+function updateLabels() {
+  // [sliderId, labelId, formatFn]
+  const pairs = [
+    ['pixelSize',  'pixelSizeV',  v => `${v}px`],
+    ['scale',      'scaleV',      v => (v/100).toFixed(2)],
+    ['contrast',   'contrastV',   v => (v >= 0 ? '+' : '') + v],
+    ['brightness', 'brightnessV', v => (v >= 0 ? '+' : '') + v],
+    ['gamma',      'gammaV',      v => (v/100).toFixed(2)],
+    ['minCov',     'minCovV',     v => (v/100).toFixed(2)],
+    ['maxCov',     'maxCovV',     v => (v/100).toFixed(2)],
+    ['angle',      'angleV',      v => `${v}°`],
+    ['dotSize',    'dotSizeV',    v => (v/100).toFixed(2)],
+    ['smoothness',   'smoothnessV',   v => (v/10).toFixed(1)],
+    ['asciiVariety', 'asciiVarietyV', v => (v/100).toFixed(2)],
+    ['gooeyMerge', 'gooeyV',      v => (v/100).toFixed(2)],
+    ['breakGrid',  'breakV',      v => (v/100).toFixed(2)],
+    ['noiseAmt',   'noiseV',      v => (v/100).toFixed(2)],
+    ['srcZoom',    'srcZoomV',    v => (v/100).toFixed(2)+'×'],
+    ['srcOffX',    'srcOffXV',    v => (v/100).toFixed(2)],
+    ['srcOffY',    'srcOffYV',    v => (v/100).toFixed(2)],
+    ['angleC',     'angleCv',     v => `${v}°`],
+    ['angleM',     'angleMv',     v => `${v}°`],
+    ['angleY',     'angleYv',     v => `${v}°`],
+    ['angleK',     'angleKv',     v => `${v}°`],
+    ['strengthC',  'strengthCv',  v => (v/100).toFixed(2)],
+    ['strengthM',  'strengthMv',  v => (v/100).toFixed(2)],
+    ['strengthY',  'strengthYv',  v => (v/100).toFixed(2)],
+    ['strengthK',  'strengthKv',  v => (v/100).toFixed(2)],
+    ['bgGradAngle',   'bgGradAngleV',   v => `${v}°`],
+    ['fgGradAngle',   'fgGradAngleV',   v => `${v}°`],
+    ['mouseStrength', 'mouseStrengthV', v => (v/100).toFixed(2)],
+    ['mouseRadius',   'mouseRadiusV',   v => v + '%'],
+    ['mouseFade',     'mouseFadeV',     v => (v/100).toFixed(2)],
+    // Layer B
+    ['layerBOpacity',  'layerBOpacityV',  v => (v/100).toFixed(2)],
+    ['pixelSizeB',     'pixelSizeBV',     v => `${v}px`],
+    ['scaleB',         'scaleBV',         v => (v/100).toFixed(2)],
+    ['angleB',         'angleBV',         v => `${v}°`],
+    ['dotSizeB',       'dotSizeBV',       v => (v/100).toFixed(2)],
+    ['smoothnessB',    'smoothnessBV',    v => (v/10).toFixed(1)],
+    ['gooeyMergeB',    'gooeyBV',         v => (v/100).toFixed(2)],
+    ['breakGridB',     'breakBV',         v => (v/100).toFixed(2)],
+    ['noiseAmtB',      'noiseBV',         v => (v/100).toFixed(2)],
+    ['asciiVarietyB',  'asciiVarietyBV',  v => (v/100).toFixed(2)],
+    ['fgGradAngleB',   'fgGradAngleBV',   v => `${v}°`],
+  ];
+  pairs.forEach(([sid, lid, fn]) => {
+    const el = get(sid), vEl = get(lid);
+    if (el && vEl) vEl.textContent = fn(el.value);
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// RESIZE
+// ════════════════════════════════════════════════════════════════
+function resize() {
+  const dpr   = Math.min(window.devicePixelRatio || 1, 2);
+  const wrap  = document.getElementById('canvas-wrap');
+  const wrapW = wrap.clientWidth;
+  const wrapH = wrap.clientHeight;
+  if (!wrapW || !wrapH) return;
+
+  let cssW, cssH, renderW, renderH;
+
+  if (customSize) {
+    // Fixed size: render at exactly customSize pixels, display at 1 CSS px per render pixel.
+    // (No DPR multiply — the user asked for a specific pixel count.)
+    cssW    = customSize.w;
+    cssH    = customSize.h;
+    renderW = customSize.w;
+    renderH = customSize.h;
+    canvas.classList.add('custom-size');
+  } else {
+    // Auto: fill the wrap at device pixel ratio for a sharp display.
+    cssW    = wrapW;
+    cssH    = wrapH;
+    renderW = Math.round(wrapW * dpr);
+    renderH = Math.round(wrapH * dpr);
+    canvas.classList.remove('custom-size');
+  }
+
+  // Position canvas so its centre aligns with the wrap centre.
+  // The VP transform (translate + scale) then applies on top of this.
+  canvas.style.width      = cssW + 'px';
+  canvas.style.height     = cssH + 'px';
+  canvas.style.marginLeft = (-cssW / 2) + 'px';
+  canvas.style.marginTop  = (-cssH / 2) + 'px';
+
+  // Sync handles overlay to same box as canvas
+  const handles = get('canvas-handles');
+  handles.style.width      = cssW + 'px';
+  handles.style.height     = cssH + 'px';
+  handles.style.marginLeft = (-cssW / 2) + 'px';
+  handles.style.marginTop  = (-cssH / 2) + 'px';
+
+  if (canvas.width !== renderW || canvas.height !== renderH) {
+    canvas.width  = renderW;
+    canvas.height = renderH;
+    gl.viewport(0, 0, renderW, renderH);
+  }
+
+  get('res-read').textContent = `${renderW} × ${renderH}`;
+}
+
+// ════════════════════════════════════════════════════════════════
+// TWEEN
+// ════════════════════════════════════════════════════════════════
+let tweenA = null, tweenB = null;
+let tweenT = 0, tweenDir = 1, tweenPlaying = false, tweenLastTime = null;
+
+const TWEEN_NUM = [
+  'pixelSize','scale','contrast','brightness','gamma','minCov','maxCov',
+  'angle','dotSize','smoothness','asciiVariety','gooeyMerge','breakGrid','noiseAmt',
+  'bgGradAngle','fgGradAngle','srcZoom','srcOffX','srcOffY',
+  'angleC','angleM','angleY','angleK','strengthC','strengthM','strengthY','strengthK',
+];
+const TWEEN_COL  = ['bgColor','fgColor','bgColor2','fgColor2'];
+const TWEEN_DISC = ['patternType','bgColorMode','fgColorMode','animate','hexGrid','invertDots','useSrcColor','imgFit'];
+
+function easeInOut(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+
+function lerpState(a, b, t) {
+  const et = easeInOut(t);
+  const s  = {};
+  TWEEN_NUM.forEach(k  => { s[k] = a[k] + (b[k] - a[k]) * et; });
+  TWEEN_COL.forEach(k  => { s[k] = a[k].map((v, i) => v + (b[k][i] - v) * et); });
+  TWEEN_DISC.forEach(k => { s[k] = t < 0.5 ? a[k] : b[k]; });
+  return s;
+}
+
+function syncTweenUI() {
+  const ready = tweenA && tweenB;
+  get('btn-tween-play').disabled = !ready;
+  get('tween-a-lbl').className = 'tween-kf-lbl' + (tweenA ? ' set' : '');
+  get('tween-a-lbl').textContent = tweenA ? '✓ set' : 'not set';
+  get('tween-b-lbl').className = 'tween-kf-lbl' + (tweenB ? ' set' : '');
+  get('tween-b-lbl').textContent = tweenB ? '✓ set' : 'not set';
+}
+
+function tweenScrubLabel(t) {
+  if (t < 0.001) return 'A';
+  if (t > 0.999) return 'B';
+  return t.toFixed(2);
+}
+
+get('btn-tween-a').addEventListener('click', () => { tweenA = readState(); syncTweenUI(); });
+get('btn-tween-b').addEventListener('click', () => { tweenB = readState(); syncTweenUI(); });
+
+get('btn-tween-play').addEventListener('click', () => {
+  tweenPlaying = !tweenPlaying;
+  tweenLastTime = null;
+  get('btn-tween-play').textContent = tweenPlaying ? '⏸ Pause' : '▶ Play';
+  get('btn-tween-play').classList.toggle('primary', tweenPlaying);
+});
+
+// Manual scrub (only when not playing)
+get('tween-scrub').addEventListener('input', function() {
+  if (tweenPlaying) return;
+  tweenT = this.value / 1000;
+  get('tween-scrubV').textContent = tweenScrubLabel(tweenT);
+});
+
+get('tween-speed').addEventListener('input', function() {
+  get('tween-speedV').textContent = (this.value / 100).toFixed(2) + '/s';
+});
+
+// ── Layer B state reader ──────────────────────────────────────
+function readStateB() {
+  const sA = readState();
+  return {
+    pixelSize:    +get('pixelSizeB').value,
+    scale:        +get('scaleB').value / 100,
+    patternType:  +get('patternTypeB').value,
+    angle:        +get('angleB').value * Math.PI / 180,
+    dotSize:      +get('dotSizeB').value / 100,
+    smoothness:   +get('smoothnessB').value / 10,
+    asciiVariety: +get('asciiVarietyB').value / 100,
+    gooeyMerge:   +get('gooeyMergeB').value / 100,
+    breakGrid:    +get('breakGridB').value / 100,
+    noiseAmt:     +get('noiseAmtB').value / 100,
+    hexGrid:       get('hexGridB').checked,
+    invertDots:    get('invertDotsB').checked,
+    useSrcColor:   get('useSrcColorB').checked,
+    animate:       sA.animate,
+    fgColor:       hexToRgb(get('fgColorB').value),
+    fgColorMode:  +get('fgColorModeB').value,
+    fgColor2:      hexToRgb(get('fgColor2B').value),
+    fgGradAngle:  +get('fgGradAngleB').value * Math.PI / 180,
+    // Shared with Layer A
+    contrast: sA.contrast, brightness: sA.brightness, gamma: sA.gamma,
+    minCov: sA.minCov, maxCov: sA.maxCov,
+    bgColor: sA.bgColor, bgColorMode: sA.bgColorMode,
+    bgColor2: sA.bgColor2, bgGradAngle: sA.bgGradAngle,
+    imgFit: sA.imgFit,
+    srcZoom: sA.srcZoom, srcOffX: sA.srcOffX, srcOffY: sA.srcOffY,
+    angleC: sA.angleC, angleM: sA.angleM, angleY: sA.angleY, angleK: sA.angleK,
+    strengthC: sA.strengthC, strengthM: sA.strengthM,
+    strengthY: sA.strengthY, strengthK: sA.strengthK,
+  };
+}
+
+// ── Uniform uploader (shared by Layer A and Layer B passes) ───
+function uploadUniforms(s, elapsed, layerBMode) {
+  const dpr = window.devicePixelRatio || 1;
+  gl.uniform1i (U.u_image,       0);
+  gl.uniform1i (U.u_hasImage,    hasImage ? 1 : 0);
+  gl.uniform2f (U.u_resolution,  canvas.width, canvas.height);
+  gl.uniform1f (U.u_imageAspect, imgAspect);
+  gl.uniform1f (U.u_pixelSize,   customSize ? s.pixelSize : s.pixelSize * dpr);
+  gl.uniform1f (U.u_scale,       s.scale);
+  gl.uniform1f (U.u_contrast,    s.contrast);
+  gl.uniform1f (U.u_brightness,  s.brightness);
+  gl.uniform1f (U.u_gamma,       s.gamma);
+  gl.uniform1f (U.u_minCov,      s.minCov);
+  gl.uniform1f (U.u_maxCov,      s.maxCov);
+  gl.uniform1i (U.u_patternType, s.patternType);
+  gl.uniform1f (U.u_angle,       s.angle);
+  gl.uniform1f (U.u_dotSize,     s.dotSize);
+  gl.uniform1f (U.u_smoothness,  s.smoothness);
+  gl.uniform1f (U.u_asciiVariety,s.asciiVariety);
+  gl.uniform1f (U.u_gooeyMerge,  s.gooeyMerge);
+  gl.uniform1f (U.u_breakGrid,   s.breakGrid);
+  gl.uniform1f (U.u_noiseAmt,    s.noiseAmt);
+  gl.uniform3fv(U.u_bgColor,     s.bgColor);
+  gl.uniform3fv(U.u_fgColor,     s.fgColor);
+  gl.uniform1i (U.u_bgColorMode, s.bgColorMode);
+  gl.uniform3fv(U.u_bgColor2,    s.bgColor2);
+  gl.uniform1f (U.u_bgGradAngle, s.bgGradAngle);
+  gl.uniform1i (U.u_fgColorMode, s.fgColorMode);
+  gl.uniform3fv(U.u_fgColor2,    s.fgColor2);
+  gl.uniform1f (U.u_fgGradAngle, s.fgGradAngle);
+  gl.uniform1f (U.u_time,        elapsed);
+  gl.uniform1i (U.u_animate,     s.animate     ? 1 : 0);
+  gl.uniform1i (U.u_hexGrid,     s.hexGrid     ? 1 : 0);
+  gl.uniform1i (U.u_invertDots,  s.invertDots  ? 1 : 0);
+  gl.uniform1i (U.u_useSrcColor, s.useSrcColor ? 1 : 0);
+  gl.uniform1i (U.u_imgFit,      s.imgFit);
+  gl.uniform2f (U.u_imageSize,   imgNaturalW, imgNaturalH);
+  gl.uniform1f (U.u_srcZoom,     s.srcZoom);
+  gl.uniform2f (U.u_srcOffset,   s.srcOffX, s.srcOffY);
+  gl.uniform1f (U.u_angleC,      s.angleC);
+  gl.uniform1f (U.u_angleM,      s.angleM);
+  gl.uniform1f (U.u_angleY,      s.angleY);
+  gl.uniform1f (U.u_angleK,      s.angleK);
+  gl.uniform1f (U.u_strengthC,   s.strengthC);
+  gl.uniform1f (U.u_strengthM,   s.strengthM);
+  gl.uniform1f (U.u_strengthY,   s.strengthY);
+  gl.uniform1f (U.u_strengthK,   s.strengthK);
+  gl.uniform1i (U.u_fontAtlas,    1);
+  gl.uniform1i (U.u_brushTexture, 2);
+  gl.uniform1i (U.u_mouseTrail,   get('mouseTrail').checked ? 1 : 0);
+  gl.uniform1f (U.u_mouseStrength,+get('mouseStrength').value / 100);
+  gl.uniform1i (U.u_layerBMode,   layerBMode ? 1 : 0);
+}
+
+// ════════════════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════════════════
+let startTime = performance.now();
+
+function render(now) {
+  // Guard: always re-schedule even if something throws, so the loop never dies
+  try { _renderInner(now); } catch(e) { console.error('render error:', e); }
+  requestAnimationFrame(render);
+}
+
+function _renderInner(now) {
+  resize();
+  updateLabels();
+  ensureLayerFBOs();
+  if (!layerFBOs.a) return;   // FBOs not ready yet (0-size canvas on first tick)
+  runBrushUpdate();
+
+  // ── Build Layer A state (with tween support) ────────────────
+  let s;
+  if (tweenA && tweenB) {
+    if (tweenPlaying) {
+      const dt = tweenLastTime ? (now - tweenLastTime) / 1000 : 0;
+      tweenLastTime = now;
+      const speed = get('tween-speed').value / 100;
+      tweenT += tweenDir * speed * dt;
+      if (tweenT >= 1) {
+        tweenT = 1;
+        if (get('tween-pingpong').checked) {
+          tweenDir = -1;
+        } else {
+          tweenPlaying = false;
+          tweenLastTime = null;
+          get('btn-tween-play').textContent = '▶ Play';
+          get('btn-tween-play').classList.remove('primary');
+        }
+      } else if (tweenT <= 0) {
+        tweenT = 0; tweenDir = 1;
+      }
+      get('tween-scrub').value  = tweenT * 1000;
+      get('tween-scrubV').textContent = tweenScrubLabel(tweenT);
+    }
+    s = lerpState(tweenA, tweenB, tweenT);
+  } else {
+    s = readState();
+  }
+  const elapsed = (now - startTime) / 1000;
+  const layerBOn = get('layerBEnabled').checked;
+
+  // ── Pass 1: Layer A → FBO A (opaque) ───────────────────────
+  gl.useProgram(prog);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, layerFBOs.a.fb);
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  uploadUniforms(s, elapsed, false);
+  if (sourceType === 'video') uploadVideoFrame();
+  if (tex) { gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex); }
+  gl.enableVertexAttribArray(0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+  // ── Pass 2: Layer B → FBO B (alpha mask) ───────────────────
+  if (layerBOn) {
+    const sB = readStateB();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, layerFBOs.b.fb);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    uploadUniforms(sB, elapsed, true);
+    // tex is already bound to TEXTURE0 from Pass 1
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+  }
+
+  // ── Pass 3: Composite → default framebuffer ────────────────
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.useProgram(compProg);
+  gl.activeTexture(gl.TEXTURE4);
+  gl.bindTexture(gl.TEXTURE_2D, layerFBOs.a.tex);
+  gl.activeTexture(gl.TEXTURE5);
+  gl.bindTexture(gl.TEXTURE_2D, layerFBOs.b ? layerFBOs.b.tex : layerFBOs.a.tex);
+  gl.uniform1i (CU.u_layerA,      4);
+  gl.uniform1i (CU.u_layerB,      5);
+  gl.uniform1i (CU.u_compBlend,   layerBOn ? +get('layerBBlend').value : 0);
+  gl.uniform1f (CU.u_compOpacity, layerBOn ? +get('layerBOpacity').value / 100 : 0);
+  gl.enableVertexAttribArray(0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+  // Restore main program for next frame
+  gl.useProgram(prog);
+  gl.activeTexture(gl.TEXTURE0);
+
+  // ── Status bar ───────────────────────────────────────────────
+  const pats = ['DOTS','LINES','RINGS','CMYK','ASCII','MIX'];
+  get('s-cell').textContent = `${s.pixelSize}px`;
+  get('s-pat').textContent  = pats[s.patternType] || '—';
+  get('s-res').textContent  = `${canvas.width} × ${canvas.height}`;
+  get('s-cmyk').textContent = s.patternType === 3 ? 'ON' : 'OFF';
+
+  document.body.classList.toggle('cmyk',  s.patternType === 3);
+  document.body.classList.toggle('ascii', s.patternType === 4);
+  document.body.classList.toggle('bg-grad',    s.bgColorMode > 0);
+  document.body.classList.toggle('bg-lingrad', s.bgColorMode === 1);
+  document.body.classList.toggle('fg-grad',    s.fgColorMode > 0);
+  document.body.classList.toggle('fg-lingrad', s.fgColorMode === 1);
+
+  // Layer B body classes
+  const fgModeB = +get('fgColorModeB').value;
+  const ptB     = +get('patternTypeB').value;
+  document.body.classList.toggle('fg-grad-b',    fgModeB > 0);
+  document.body.classList.toggle('fg-lingrad-b', fgModeB === 1);
+  document.body.classList.toggle('ascii-b',      ptB === 4);
+}
+
+requestAnimationFrame(render);
+
+// ════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
+// FILE LOADING  (images + videos)
+// ════════════════════════════════════════════════════════════════
+function loadFile(file) {
+  if (!file) return;
+
+  if (file.type.startsWith('image/')) {
+    // ── Static image ──────────────────────────────────────────
+    sourceType = 'image';
+    videoEl.pause();
+    get('video-bar').classList.remove('active');
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      initTex(img, img.naturalWidth, img.naturalHeight);
+      imgNaturalW = img.naturalWidth;
+      imgNaturalH = img.naturalHeight;
+      autoSizeCanvas(imgNaturalW, imgNaturalH);
+      URL.revokeObjectURL(url);
+    };
+    img.onerror = () => alert('Failed to load image.');
+    img.src = url;
+
+  } else if (file.type.startsWith('video/')) {
+    // ── Video ─────────────────────────────────────────────────
+    sourceType = 'video';
+    const url = URL.createObjectURL(file);
+
+    videoEl.src = url;
+    videoEl.loop   = get('video-loop').checked;
+    videoEl.muted  = true;   // required for autoplay
+    videoEl.onloadedmetadata = () => {
+      imgNaturalW = videoEl.videoWidth;
+      imgNaturalH = videoEl.videoHeight;
+      imgAspect   = imgNaturalW / imgNaturalH;
+      hasImage    = true;
+
+      // Bootstrap the texture with a 1×1 opaque-black pixel so it is
+      // immediately COMPLETE (valid for sampling). uploadVideoFrame() will
+      // overwrite this with real video content once readyState >= 2.
+      if (!tex) tex = gl.createTexture();
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                    new Uint8Array([0, 0, 0, 255]));
+
+      // Resize canvas to video dimensions NOW, before play() — avoids race
+      // between canvas resize and the first uploadVideoFrame call.
+      autoSizeCanvas(imgNaturalW, imgNaturalH);
+
+      get('no-img').style.display = 'none';
+      get('video-bar').classList.add('active');
+      get('seek').max = Math.floor(videoEl.duration * 100);
+      updateTimeDisplay();
+      videoEl.play()
+        .then(() => get('btn-playpause').textContent = '⏸')
+        .catch(() => {});   // autoplay blocked — user can press play manually
+    };
+    videoEl.addEventListener('canplay', () => URL.revokeObjectURL(url), { once: true });
+    videoEl.onerror = () => { URL.revokeObjectURL(url); alert('Failed to load video.'); };
+  }
+}
+
+get('file-input').addEventListener('change', e => {
+  loadFile(e.target.files[0]);
+  e.target.value = '';
+});
+
+// Drag & drop on canvas area
+const canvasSide = document.getElementById('canvas-side');
+const canvasWrap = document.getElementById('canvas-wrap');
+const dropMask   = document.getElementById('drop-mask');
+canvasSide.addEventListener('dragover', e => { e.preventDefault(); dropMask.classList.add('on'); });
+canvasSide.addEventListener('dragleave', e => { if (!canvasSide.contains(e.relatedTarget)) dropMask.classList.remove('on'); });
+canvasSide.addEventListener('drop', e => {
+  e.preventDefault();
+  dropMask.classList.remove('on');
+  loadFile(e.dataTransfer.files[0]);
+});
+
+// ════════════════════════════════════════════════════════════════
+// VIDEO PLAYBACK CONTROLS
+// ════════════════════════════════════════════════════════════════
+function fmtTime(s) {
+  const m = Math.floor(s / 60);
+  return `${m}:${String(Math.floor(s % 60)).padStart(2,'0')}`;
+}
+function updateTimeDisplay() {
+  get('time-disp').textContent = `${fmtTime(videoEl.currentTime)} / ${fmtTime(videoEl.duration || 0)}`;
+}
+
+// Play / Pause button
+get('btn-playpause').addEventListener('click', () => {
+  if (videoEl.paused) { videoEl.play(); get('btn-playpause').textContent = '⏸'; }
+  else                 { videoEl.pause(); get('btn-playpause').textContent = '▶'; }
+});
+
+// Spacebar = play/pause when video is active
+window.addEventListener('keydown', e => {
+  if (e.code === 'Space' && sourceType === 'video' && e.target === document.body) {
+    e.preventDefault();
+    get('btn-playpause').click();
+  }
+});
+
+// Seek slider
+let userSeeking = false;
+get('seek').addEventListener('mousedown', () => { userSeeking = true; });
+get('seek').addEventListener('input', () => {
+  videoEl.currentTime = get('seek').value / 100;
+  updateTimeDisplay();
+});
+get('seek').addEventListener('mouseup', () => { userSeeking = false; });
+
+// Sync slider ← video time
+videoEl.addEventListener('timeupdate', () => {
+  updateTimeDisplay();
+  if (!userSeeking) get('seek').value = Math.floor(videoEl.currentTime * 100);
+});
+videoEl.addEventListener('ended', () => {
+  get('btn-playpause').textContent = '▶';
+});
+videoEl.addEventListener('play',  () => { get('btn-playpause').textContent = '⏸'; });
+videoEl.addEventListener('pause', () => { get('btn-playpause').textContent = '▶'; });
+
+// Loop toggle
+get('video-loop').addEventListener('change', () => {
+  videoEl.loop = get('video-loop').checked;
+});
+
+// ════════════════════════════════════════════════════════════════
+// WIRE ALL INPUTS
+// ════════════════════════════════════════════════════════════════
+[
+  'pixelSize','scale','contrast','brightness','gamma','minCov','maxCov',
+  'patternType','angle','dotSize','smoothness','asciiVariety','gooeyMerge','breakGrid','noiseAmt',
+  'bgColor','fgColor',
+  'bgColorMode','bgColor2','bgGradAngle',
+  'fgColorMode','fgColor2','fgGradAngle',
+  'animate','hexGrid','invertDots','useSrcColor','srcZoom','srcOffX','srcOffY',
+  'angleC','angleM','angleY','angleK',
+  'strengthC','strengthM','strengthY','strengthK'
+].forEach(id => {
+  const el = get(id);
+  if (el) el.addEventListener('input', () => {});
+});
+
+// ════════════════════════════════════════════════════════════════
+// RESET
+// ════════════════════════════════════════════════════════════════
+function applyState(def) {
+  Object.entries(def).forEach(([k, v]) => {
+    const el = get(k);
+    if (!el) return;
+    if (el.type === 'checkbox') el.checked = !!v;
+    else el.value = v;
+  });
+}
+
+get('btn-reset').addEventListener('click', () => applyState(DEFAULTS));
+
+// ════════════════════════════════════════════════════════════════
+// PRESETS
+// ════════════════════════════════════════════════════════════════
+
+// Capture raw slider/checkbox/color values for every key in DEFAULTS
+function captureRawState() {
+  const snap = {};
+  Object.keys(DEFAULTS).forEach(k => {
+    const el = get(k);
+    if (!el) return;
+    snap[k] = el.type === 'checkbox' ? el.checked : el.value;
+  });
+  return snap;
+}
+
+const USER_PRESET_KEY = 'bitmania_user_presets';
+
+function loadUserPresets() {
+  try { return JSON.parse(localStorage.getItem(USER_PRESET_KEY)) || []; }
+  catch { return []; }
+}
+
+function saveUserPresets(list) {
+  localStorage.setItem(USER_PRESET_KEY, JSON.stringify(list));
+}
+
+function rebuildUserOptgroup() {
+  const group = get('user-preset-group');
+  group.innerHTML = '';
+  loadUserPresets().forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = '__user__' + p.id;
+    opt.textContent = p.name;
+    group.appendChild(opt);
+  });
+  syncDelButton();
+}
+
+function syncDelButton() {
+  const sel = get('preset-sel');
+  const isUser = sel.value.startsWith('__user__');
+  get('btn-del-preset').classList.toggle('visible', isUser);
+}
+
+// Built-in preset load
+get('preset-sel').addEventListener('change', function() {
+  syncDelButton();
+  if (this.value.startsWith('__user__')) {
+    const id = this.value.slice(8);
+    const p  = loadUserPresets().find(x => x.id === id);
+    if (p) applyState({ ...DEFAULTS, ...p.settings });
+    return;
+  }
+  const p = PRESETS[this.value];
+  if (!p) return;
+  applyState({ ...DEFAULTS, ...p });
+  this.value = '';
+  syncDelButton();
+});
+
+// Save button — show name bar
+get('btn-save-preset').addEventListener('click', () => {
+  get('preset-name-bar').classList.add('visible');
+  get('preset-name-input').value = '';
+  get('preset-name-input').focus();
+});
+
+// Cancel
+get('btn-preset-cancel').addEventListener('click', () => {
+  get('preset-name-bar').classList.remove('visible');
+});
+
+// Confirm save
+function confirmSavePreset() {
+  const name = get('preset-name-input').value.trim();
+  if (!name) return;
+  const list = loadUserPresets();
+  const id   = Date.now().toString(36);
+  list.push({ id, name, settings: captureRawState() });
+  saveUserPresets(list);
+  rebuildUserOptgroup();
+  get('preset-name-bar').classList.remove('visible');
+  // Select the new preset so the user sees it highlighted
+  get('preset-sel').value = '__user__' + id;
+  syncDelButton();
+}
+get('btn-preset-ok').addEventListener('click', confirmSavePreset);
+get('preset-name-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmSavePreset();
+  if (e.key === 'Escape') get('preset-name-bar').classList.remove('visible');
+});
+
+// Delete selected user preset
+get('btn-del-preset').addEventListener('click', () => {
+  const id   = get('preset-sel').value.slice(8);
+  const list = loadUserPresets().filter(x => x.id !== id);
+  saveUserPresets(list);
+  rebuildUserOptgroup();
+  get('preset-sel').value = '';
+  syncDelButton();
+});
+
+// Populate on load
+rebuildUserOptgroup();
+
+// ════════════════════════════════════════════════════════════════
+// EXPORT
+// ════════════════════════════════════════════════════════════════
+get('btn-export').addEventListener('click', () => {
+  // Force a render with preserveDrawingBuffer
+  const ts = new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
+  const link = document.createElement('a');
+  link.download = `halftone-${ts}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+
+// ════════════════════════════════════════════════════════════════
+// SOURCE CROP  — zoom/pan within the source image/video
+// Sidebar sliders drive uniforms directly.
+// Alt+scroll  → zoom into source centred on cursor
+// Alt+drag    → pan within source
+// ════════════════════════════════════════════════════════════════
+
+// Helper: clamp crop offset so the visible window stays inside [0,1]
+function clampCropOffset(z) {
+  const half = 0.5 / z;
+  const ox = parseFloat(get('srcOffX').value) / 100;
+  const oy = parseFloat(get('srcOffY').value) / 100;
+  const cx = Math.max(half, Math.min(1 - half, ox));
+  const cy = Math.max(half, Math.min(1 - half, oy));
+  get('srcOffX').value = Math.round(cx * 100);
+  get('srcOffY').value = Math.round(cy * 100);
+}
+
+// Fill Canvas: zoom crop to eliminate letterboxing (object-fit: cover)
+get('btn-crop-fill').addEventListener('click', () => {
+  const ca = canvas.clientWidth / canvas.clientHeight;
+  const fillZoom = imgAspect > ca ? imgAspect / ca : ca / imgAspect;
+  get('srcZoom').value = Math.round(Math.max(100, Math.min(800, fillZoom * 100)));
+  get('srcOffX').value = 50;
+  get('srcOffY').value = 50;
+});
+
+get('btn-crop-reset').addEventListener('click', () => {
+  get('srcZoom').value = 100;
+  get('srcOffX').value = 50;
+  get('srcOffY').value = 50;
+});
+
+// Alt+scroll → zoom source centred on cursor
+canvasWrap.addEventListener('wheel', e => {
+  if (!e.altKey) return;   // non-alt wheel handled by display zoom
+  e.preventDefault();
+  e.stopPropagation();
+
+  const rect  = canvasWrap.getBoundingClientRect();
+  const nx    = (e.clientX - rect.left)  / rect.width;   // 0..1 in canvas
+  const ny    = (e.clientY - rect.top)   / rect.height;
+
+  const oldZ  = parseFloat(get('srcZoom').value) / 100;
+  const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+  const newZ  = Math.max(1, Math.min(8, oldZ * factor));
+
+  // Keep the image point under the cursor fixed
+  const ox = parseFloat(get('srcOffX').value) / 100;
+  const oy = parseFloat(get('srcOffY').value) / 100;
+  // Image UV under cursor at old zoom:
+  //   imgUV = (screenUV - 0.5) / oldZ + offset
+  // After zoom to newZ, keep same imgUV under cursor:
+  //   imgUV = (screenUV - 0.5) / newZ + newOffset
+  //   => newOffset = imgUV - (screenUV - 0.5) / newZ
+  const imgX = (nx - 0.5) / oldZ + ox;
+  const imgY = (ny - 0.5) / oldZ + oy;
+  const newOx = imgX - (nx - 0.5) / newZ;
+  const newOy = imgY - (ny - 0.5) / newZ;
+
+  get('srcZoom').value = Math.round(newZ * 100);
+  const half = 0.5 / newZ;
+  get('srcOffX').value = Math.round(Math.max(half, Math.min(1 - half, newOx)) * 100);
+  get('srcOffY').value = Math.round(Math.max(half, Math.min(1 - half, newOy)) * 100);
+}, { passive: false });
+
+// Alt+drag → pan source
+let _cropDrag = null;
+canvasWrap.addEventListener('mousedown', e => {
+  if (!e.altKey || e.button !== 0) return;
+  e.preventDefault();
+  e.stopPropagation();   // don't start display pan
+  _cropDrag = {
+    sx: e.clientX, sy: e.clientY,
+    ox: parseFloat(get('srcOffX').value) / 100,
+    oy: parseFloat(get('srcOffY').value) / 100,
+    z:  parseFloat(get('srcZoom').value)  / 100,
+  };
+  canvasWrap.style.cursor = 'crosshair';
+});
+
+window.addEventListener('mousemove', e => {
+  if (!_cropDrag) return;
+  const rect = canvasWrap.getBoundingClientRect();
+  // Screen drag → image UV delta (inverted so dragging right shows left portion)
+  const dx = -(e.clientX - _cropDrag.sx) / (rect.width  * _cropDrag.z);
+  const dy = -(e.clientY - _cropDrag.sy) / (rect.height * _cropDrag.z);
+  const half = 0.5 / _cropDrag.z;
+  const nx = Math.max(half, Math.min(1 - half, _cropDrag.ox + dx));
+  const ny = Math.max(half, Math.min(1 - half, _cropDrag.oy + dy));
+  get('srcOffX').value = Math.round(nx * 100);
+  get('srcOffY').value = Math.round(ny * 100);
+});
+
+window.addEventListener('mouseup', e => {
+  if (!_cropDrag) return;
+  _cropDrag = null;
+  canvasWrap.style.cursor = '';
+});
+
+// ════════════════════════════════════════════════════════════════
+// ZOOM / PAN
+// Transforms the CSS display layer only — WebGL renders at full
+// resolution regardless of zoom level.
+// Controls:
+//   Scroll wheel   → zoom toward cursor
+//   Drag           → pan (any zoom level)
+//   Double-click   → reset to fit
+//   ⌘/Ctrl 0       → reset   ⌘/Ctrl +   → zoom in   ⌘/Ctrl −  → zoom out
+// ════════════════════════════════════════════════════════════════
+const vp = { zoom: 1, cx: 0, cy: 0 };
+
+function applyVP() {
+  const xf = `translate(${vp.cx}px,${vp.cy}px) scale(${vp.zoom})`;
+  canvas.style.transform = xf;
+  get('canvas-handles').style.transform = xf;
+  // Counter-scale the handles so they stay pixel-fixed regardless of zoom
+  document.documentElement.style.setProperty('--inv-zoom', 1 / vp.zoom);
+  canvasWrap.classList.add('pannable');
+  get('s-zoom').textContent = `${Math.round(vp.zoom * 100)}%`;
+}
+
+// Auto-size canvas to src dimensions, capped so longest side ≤ MAX px
+function autoSizeCanvas(srcW, srcH) {
+  const MAX   = 1024;
+  const scale = Math.min(1, MAX / Math.max(srcW, srcH, 1));
+  customSize  = { w: Math.round(srcW * scale), h: Math.round(srcH * scale) };
+  get('canvW').value  = customSize.w;
+  get('canvH').value  = customSize.h;
+  get('imgFit').value = '2';   // actual size — canvas matches image, ready to bleed
+  resize();
+  resetVP();
+}
+
+function resetVP() {
+  // Fit the canvas inside the wrap with a small margin so the dot-grid surround is visible
+  const wrap  = document.getElementById('canvas-wrap');
+  const wrapW = wrap.clientWidth  || 1;
+  const wrapH = wrap.clientHeight || 1;
+  vp.zoom = Math.min(wrapW / customSize.w, wrapH / customSize.h) * 0.90;
+  vp.cx = 0; vp.cy = 0;
+  applyVP();
+}
+
+// ── Mouse trail tracking ──────────────────────────────────────
+// Track mouse in canvas UV relative to the canvas element's screen rect.
+// Uses document-level mousemove so the trail keeps painting as the cursor
+// bleeds off the canvas edge. UV can go outside [0,1]; the brush shader's
+// splat still affects near-edge fragments, and CLAMP_TO_EDGE extends that
+// value to cells beyond the boundary.
+document.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  mouseState.x    = (e.clientX - rect.left)  / rect.width;
+  mouseState.y    = 1.0 - (e.clientY - rect.top) / rect.height;  // flip Y for WebGL
+  // "over" = mouse is within a generous 30% margin around the canvas
+  mouseState.over = mouseState.x > -0.3 && mouseState.x < 1.3 &&
+                    mouseState.y > -0.3 && mouseState.y < 1.3;
+});
+document.addEventListener('mouseleave', () => { mouseState.over = false; });
+
+function runBrushUpdate() {
+  const velX = mouseState.x - mouseState.prevX;
+  const velY = mouseState.y - mouseState.prevY;
+  mouseState.prevX = mouseState.x;
+  mouseState.prevY = mouseState.y;
+
+  const radius = +get('mouseRadius').value / 100 * 0.35;  // slider % → UV fraction
+  const decay  = +get('mouseFade').value   / 100;
+
+  // Render brush update into write FBO
+  gl.bindFramebuffer(gl.FRAMEBUFFER, brushFBO.write.fb);
+  gl.viewport(0, 0, BRUSH_RES, BRUSH_RES);
+  gl.useProgram(brushProg);
+
+  // Bind read FBO to TEXTURE3 (temp unit, not used by main shader)
+  gl.activeTexture(gl.TEXTURE3);
+  gl.bindTexture(gl.TEXTURE_2D, brushFBO.read.tex);
+  gl.uniform1i (BU.u_prevTrail,    3);
+  gl.uniform2f (BU.u_mousePos,     mouseState.x, mouseState.y);
+  gl.uniform2f (BU.u_mouseVel,     velX, velY);
+  gl.uniform1f (BU.u_brushRadius,  radius);
+  gl.uniform1f (BU.u_decay,        decay);
+  gl.uniform1i (BU.u_mouseActive,  mouseState.over ? 1 : 0);
+
+  // Draw with location-0 attrib (guaranteed since we called bindAttribLocation at link)
+  gl.enableVertexAttribArray(0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+  // Swap ping-pong
+  [brushFBO.read, brushFBO.write] = [brushFBO.write, brushFBO.read];
+
+  // Restore main state
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.useProgram(prog);
+  // Re-bind updated read texture to TEXTURE2 for the halftone shader
+  gl.activeTexture(gl.TEXTURE2);
+  gl.bindTexture(gl.TEXTURE_2D, brushFBO.read.tex);
+  gl.activeTexture(gl.TEXTURE0);
+}
+
+// ── Scroll / pinch to zoom, centred on cursor ────────────────
+// Attached to canvasSide — its sibling <aside> never triggers this,
+// so no sidebar-exclusion guards are needed.
+canvasSide.addEventListener('wheel', e => {
+  if (e.altKey) return;   // alt+wheel → source crop (handled on canvasWrap)
+  e.preventDefault();
+
+  const rect   = canvasWrap.getBoundingClientRect();
+  const mx     = e.clientX - rect.left  - rect.width  / 2;
+  const my     = e.clientY - rect.top   - rect.height / 2;
+  // Use deltaY magnitude for smooth trackpad momentum; normalise line/page modes
+  let delta = e.deltaY;
+  if (e.deltaMode === 1) delta *= 16;    // lines → pixels
+  if (e.deltaMode === 2) delta *= 400;   // pages → pixels
+  const factor = Math.pow(0.999, delta);
+  const newZoom = Math.max(0.05, Math.min(16, vp.zoom * factor));
+  const sc      = newZoom / vp.zoom;
+  vp.cx   = mx + (vp.cx - mx) * sc;
+  vp.cy   = my + (vp.cy - my) * sc;
+  vp.zoom = newZoom;
+  applyVP();
+}, { passive: false });
+
+// ── Drag to pan ───────────────────────────────────────────────
+let _drag = null;
+
+canvasWrap.addEventListener('mousedown', e => {
+  if (e.button !== 0 || e.altKey) return;   // Alt+drag is handled by source crop
+  e.preventDefault();
+  _drag = { sx: e.clientX, sy: e.clientY, cx: vp.cx, cy: vp.cy };
+  canvasWrap.classList.add('panning');
+});
+
+window.addEventListener('mousemove', e => {
+  if (!_drag) return;
+  vp.cx = _drag.cx + (e.clientX - _drag.sx);
+  vp.cy = _drag.cy + (e.clientY - _drag.sy);
+  applyVP();
+});
+
+window.addEventListener('mouseup', () => {
+  if (!_drag) return;
+  _drag = null;
+  canvasWrap.classList.remove('panning');
+});
+
+// ── Double-click → fit ────────────────────────────────────────
+canvasWrap.addEventListener('dblclick', resetVP);
+get('btn-fit').addEventListener('click', resetVP);
+
+// ── Zoom buttons ──────────────────────────────────────────────
+function zoomBy(factor) {
+  const newZoom = Math.max(0.05, Math.min(16, vp.zoom * factor));
+  const sc = newZoom / vp.zoom;
+  vp.cx *= sc; vp.cy *= sc; vp.zoom = newZoom;
+  applyVP();
+}
+get('btn-zoom-in' ).addEventListener('click', () => zoomBy(1.25));
+get('btn-zoom-out').addEventListener('click', () => zoomBy(1 / 1.25));
+
+// ── Keyboard shortcuts ────────────────────────────────────────
+window.addEventListener('keydown', e => {
+  const mod = e.ctrlKey || e.metaKey;
+  if (!mod) return;
+  if (e.key === '0') {
+    e.preventDefault(); resetVP();
+  } else if (e.key === '=' || e.key === '+') {
+    e.preventDefault();
+    const nz = Math.min(16, vp.zoom * 1.25);
+    const sc = nz / vp.zoom;
+    vp.cx *= sc; vp.cy *= sc; vp.zoom = nz;
+    applyVP();
+  } else if (e.key === '-') {
+    e.preventDefault();
+    const nz = Math.max(0.05, vp.zoom / 1.25);
+    const sc = nz / vp.zoom;
+    vp.cx *= sc; vp.cy *= sc; vp.zoom = nz;
+    applyVP();
+  }
+});
+
+// ════════════════════════════════════════════════════════════════
+// CANVAS RESIZE HANDLES
+// ════════════════════════════════════════════════════════════════
+(function() {
+  const handles = get('canvas-handles');
+  let drag = null;  // { dir, startX, startY, startW, startH }
+
+  handles.querySelectorAll('.ch').forEach(ch => {
+    ch.addEventListener('mousedown', e => {
+      e.preventDefault();
+      e.stopPropagation();   // don't trigger canvas pan
+      if (!customSize) customSize = { w: canvas.width, h: canvas.height };
+      drag = {
+        dir:    ch.dataset.dir,
+        startX: e.clientX,
+        startY: e.clientY,
+        startW: customSize.w,
+        startH: customSize.h,
+      };
+      handles.classList.add('dragging');
+      document.body.style.cursor = getComputedStyle(ch).cursor;
+    });
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!drag) return;
+    // Convert screen-space delta to canvas-pixel delta (account for VP zoom)
+    const dx = (e.clientX - drag.startX) / vp.zoom;
+    const dy = (e.clientY - drag.startY) / vp.zoom;
+    const d  = drag.dir;
+
+    let w = drag.startW;
+    let h = drag.startH;
+    if (d.includes('e')) w = Math.round(drag.startW + dx);
+    if (d.includes('w')) w = Math.round(drag.startW - dx);
+    if (d.includes('s')) h = Math.round(drag.startH + dy);
+    if (d.includes('n')) h = Math.round(drag.startH - dy);
+
+    w = Math.max(16, Math.min(8192, w));
+    h = Math.max(16, Math.min(8192, h));
+
+    customSize = { w, h };
+    get('canvW').value = w;
+    get('canvH').value = h;
+    resize();
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (!drag) return;
+    drag = null;
+    handles.classList.remove('dragging');
+    document.body.style.cursor = '';
+  });
+})();
+
+// ════════════════════════════════════════════════════════════════
+// CANVAS SIZE CONTROLS
+// ════════════════════════════════════════════════════════════════
+
+// Preset picker → populate W/H fields
+get('canvPreset').addEventListener('change', function() {
+  const val = this.value;
+  if (!val) return;
+  const [w, h] = val.split('x').map(Number);
+  get('canvW').value = w;
+  get('canvH').value = h;
+});
+
+// Apply — switch to custom size
+get('btn-canv-apply').addEventListener('click', () => {
+  const w = Math.max(1, Math.min(8192, parseInt(get('canvW').value, 10) || 1920));
+  const h = Math.max(1, Math.min(8192, parseInt(get('canvH').value, 10) || 1080));
+  get('canvW').value = w;
+  get('canvH').value = h;
+  customSize = { w, h };
+  resize();
+  resetVP();
+});
+
+// Auto — reset canvas to match the source image/video dimensions (or 512×512)
+get('btn-canv-auto').addEventListener('click', () => {
+  get('canvPreset').value = '';
+  autoSizeCanvas(imgNaturalW, imgNaturalH);
+});
+
+// Enter key on W / H fields = Apply
+['canvW', 'canvH'].forEach(id => {
+  get(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') get('btn-canv-apply').click();
+  });
+});
+
+// ════════════════════════════════════════════════════════════════
+// RESIZE OBSERVER
+// ════════════════════════════════════════════════════════════════
+// Observe the wrap (not the canvas) so we react to layout changes
+// whether the canvas is in auto-fill or custom-size mode.
+let _firstResize = true;
+new ResizeObserver(() => {
+  resize();
+  if (_firstResize) { _firstResize = false; resetVP(); }
+}).observe(document.getElementById('canvas-wrap'));
+</script>
+</body>
+</html>
