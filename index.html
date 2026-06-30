@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0c0c0e">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Halftone Playground</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -434,12 +436,151 @@ body.fg-grad-b    .fg-grad-row-b    { display: flex; }
 body.fg-lingrad-b .fg-lingrad-row-b { display: flex; }
 .ascii-row-b { display: none; }
 body.ascii-b  .ascii-row-b          { display: flex; }
+
+/* ── Mobile ──────────────────────────────────────────── */
+#mobile-bar, #panel-backdrop { display: none; }
+
+@media (max-width: 768px), (pointer: coarse) {
+  :root { --panel-w: 100%; }
+
+  body {
+    flex-direction: column;
+    height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  #canvas-side { min-height: 0; }
+
+  #canvas-wrap {
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  #canvas-handles { display: none; }
+
+  #mobile-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 6px 10px;
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
+    background: var(--surf);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .mobile-grp { display: flex; align-items: center; gap: 6px; }
+  #mobile-bar button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  #mobile-bar button.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  #status {
+    height: auto;
+    min-height: 32px;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    padding: 6px 10px;
+  }
+  #status span:not(:last-child) { display: none; }
+  #status > span:last-child { margin-left: 0; width: 100%; justify-content: center; }
+  #status button {
+    min-width: 40px;
+    min-height: 36px;
+    height: 36px !important;
+    font-size: 16px !important;
+    padding: 0 12px !important;
+  }
+  #btn-fit { font-size: 11px !important; }
+
+  #panel {
+    position: fixed;
+    inset: auto 0 0 0;
+    width: 100%;
+    min-width: 0;
+    max-height: 82dvh;
+    z-index: 200;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    border-radius: 14px 14px 0 0;
+    box-shadow: 0 -8px 40px rgba(0,0,0,.55);
+    transform: translateY(100%);
+    transition: transform .28s cubic-bezier(.32,.72,0,1);
+  }
+  body.panel-open #panel { transform: translateY(0); }
+
+  #panel-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 150;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s;
+  }
+  body.panel-open #panel-backdrop {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  #panel-header { height: 48px; padding: 0 14px; }
+  #panel-header h1 { font-size: 14px; }
+  #panel-header button, #upload-strip label, #upload-strip button {
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .sec-hdr { padding: 12px 14px; min-height: 44px; }
+  .sec-body { padding: 10px 14px 14px; }
+
+  input[type="range"] { height: 6px; }
+  input[type="range"]::-webkit-slider-thumb {
+    width: 22px; height: 22px;
+  }
+
+  .toggle { width: 44px; height: 26px; }
+  .tthumb { width: 22px; height: 22px; top: 2px; left: 2px; }
+  .toggle input:checked ~ .tthumb { transform: translateX(18px); }
+
+  #video-bar { height: 44px; padding: 0 10px; }
+  #seek { height: 6px; }
+  #btn-playpause { min-width: 44px; min-height: 36px; }
+
+  #no-img label {
+    min-height: 44px;
+    padding: 12px 24px;
+    font-size: 13px;
+  }
+}
 </style>
 </head>
 <body>
 
+<div id="panel-backdrop" aria-hidden="true"></div>
+
 <!-- ─── Canvas side ─────────────────────────── -->
 <div id="canvas-side">
+  <div id="mobile-bar">
+    <div class="mobile-grp">
+      <button type="button" id="btn-mobile-open" title="Open file">📁</button>
+      <button type="button" id="btn-mobile-crop" title="Source crop mode">✂</button>
+    </div>
+    <div class="mobile-grp">
+      <button type="button" id="btn-mobile-settings" title="Settings">⚙</button>
+      <button type="button" id="btn-mobile-export" class="primary" title="Export PNG">↓</button>
+    </div>
+  </div>
   <div id="canvas-wrap">
     <canvas id="c"></canvas>
     <div id="canvas-handles">
@@ -2164,6 +2305,20 @@ function toggleSec(id) { document.getElementById(id).classList.toggle('closed');
 
 function get(id) { return document.getElementById(id); }
 
+const IS_MOBILE = window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
+let cropMode = false;
+
+function setPanelOpen(open) {
+  document.body.classList.toggle('panel-open', open);
+  get('panel-backdrop').setAttribute('aria-hidden', open ? 'false' : 'true');
+}
+
+function setCropMode(on) {
+  cropMode = on;
+  get('btn-mobile-crop')?.classList.toggle('active', on);
+  get('canvas-wrap').style.cursor = on ? 'crosshair' : '';
+}
+
 function readState() {
   return {
     pixelSize:    +get('pixelSize').value,
@@ -2271,7 +2426,7 @@ function updateLabels() {
 // RESIZE
 // ════════════════════════════════════════════════════════════════
 function resize() {
-  const dpr   = Math.min(window.devicePixelRatio || 1, 2);
+  const dpr   = Math.min(window.devicePixelRatio || 1, IS_MOBILE ? 1.5 : 2);
   const wrap  = document.getElementById('canvas-wrap');
   const wrapW = wrap.clientWidth;
   const wrapH = wrap.clientHeight;
@@ -2863,14 +3018,37 @@ rebuildUserOptgroup();
 // ════════════════════════════════════════════════════════════════
 // EXPORT
 // ════════════════════════════════════════════════════════════════
-get('btn-export').addEventListener('click', () => {
-  // Force a render with preserveDrawingBuffer
+get('btn-export').addEventListener('click', exportPNG);
+get('btn-mobile-export')?.addEventListener('click', exportPNG);
+
+function exportPNG() {
   const ts = new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
-  const link = document.createElement('a');
-  link.download = `halftone-${ts}.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-});
+  const name = `halftone-${ts}.png`;
+
+  canvas.toBlob(async blob => {
+    if (!blob) {
+      const link = document.createElement('a');
+      link.download = name;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      return;
+    }
+    const file = new File([blob], name, { type: 'image/png' });
+    if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: 'Halftone export' });
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+      }
+    }
+    const link = document.createElement('a');
+    link.download = name;
+    link.href = URL.createObjectURL(blob);
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  }, 'image/png');
+}
 
 // ════════════════════════════════════════════════════════════════
 // SOURCE CROP  — zoom/pan within the source image/video
@@ -2941,6 +3119,7 @@ canvasWrap.addEventListener('wheel', e => {
 // Alt+drag → pan source
 let _cropDrag = null;
 canvasWrap.addEventListener('mousedown', e => {
+  if (IS_MOBILE) return;
   if (!e.altKey || e.button !== 0) return;
   e.preventDefault();
   e.stopPropagation();   // don't start display pan
@@ -2996,7 +3175,7 @@ function applyVP() {
 
 // Auto-size canvas to src dimensions, capped so longest side ≤ MAX px
 function autoSizeCanvas(srcW, srcH) {
-  const MAX   = 1024;
+  const MAX   = IS_MOBILE ? 768 : 1024;
   const scale = Math.min(1, MAX / Math.max(srcW, srcH, 1));
   customSize  = { w: Math.round(srcW * scale), h: Math.round(srcH * scale) };
   get('canvW').value  = customSize.w;
@@ -3023,14 +3202,18 @@ function resetVP() {
 // splat still affects near-edge fragments, and CLAMP_TO_EDGE extends that
 // value to cells beyond the boundary.
 document.addEventListener('mousemove', e => {
-  const rect = canvas.getBoundingClientRect();
-  mouseState.x    = (e.clientX - rect.left)  / rect.width;
-  mouseState.y    = 1.0 - (e.clientY - rect.top) / rect.height;  // flip Y for WebGL
-  // "over" = mouse is within a generous 30% margin around the canvas
-  mouseState.over = mouseState.x > -0.3 && mouseState.x < 1.3 &&
-                    mouseState.y > -0.3 && mouseState.y < 1.3;
+  updateMouseTrail(e.clientX, e.clientY);
 });
 document.addEventListener('mouseleave', () => { mouseState.over = false; });
+
+function updateMouseTrail(clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+  mouseState.x    = (clientX - rect.left)  / rect.width;
+  mouseState.y    = 1.0 - (clientY - rect.top) / rect.height;
+  mouseState.over = mouseState.x > -0.3 && mouseState.x < 1.3 &&
+                    mouseState.y > -0.3 && mouseState.y < 1.3;
+}
 
 function runBrushUpdate() {
   const velX = mouseState.x - mouseState.prevX;
@@ -3102,6 +3285,7 @@ canvasSide.addEventListener('wheel', e => {
 let _drag = null;
 
 canvasWrap.addEventListener('mousedown', e => {
+  if (IS_MOBILE) return;
   if (e.button !== 0 || e.altKey) return;   // Alt+drag is handled by source crop
   e.preventDefault();
   _drag = { sx: e.clientX, sy: e.clientY, cx: vp.cx, cy: vp.cy };
@@ -3120,6 +3304,149 @@ window.addEventListener('mouseup', () => {
   _drag = null;
   canvasWrap.classList.remove('panning');
 });
+
+// ── Touch / pointer gestures (mobile) ─────────────────────────
+const activePointers = new Map();
+let touchPan = null;      // display pan
+let touchCrop = null;     // source crop pan
+let pinchState = null;    // { dist, zoom } or { dist, srcZoom }
+
+function pointerDist(a, b) {
+  const dx = a.x - b.x, dy = a.y - b.y;
+  return Math.hypot(dx, dy);
+}
+
+function zoomSourceAt(factor, nx, ny) {
+  const oldZ = parseFloat(get('srcZoom').value) / 100;
+  const newZ = Math.max(1, Math.min(8, oldZ * factor));
+  const ox = parseFloat(get('srcOffX').value) / 100;
+  const oy = parseFloat(get('srcOffY').value) / 100;
+  const imgX = (nx - 0.5) / oldZ + ox;
+  const imgY = (ny - 0.5) / oldZ + oy;
+  const newOx = imgX - (nx - 0.5) / newZ;
+  const newOy = imgY - (ny - 0.5) / newZ;
+  get('srcZoom').value = Math.round(newZ * 100);
+  const half = 0.5 / newZ;
+  get('srcOffX').value = Math.round(Math.max(half, Math.min(1 - half, newOx)) * 100);
+  get('srcOffY').value = Math.round(Math.max(half, Math.min(1 - half, newOy)) * 100);
+}
+
+function onPointerDown(e) {
+  if (e.pointerType !== 'touch') return;
+  activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  canvasWrap.setPointerCapture(e.pointerId);
+  updateMouseTrail(e.clientX, e.clientY);
+
+  if (activePointers.size === 2) {
+    const pts = [...activePointers.values()];
+    const rect = canvasWrap.getBoundingClientRect();
+    const midX = (pts[0].x + pts[1].x) / 2;
+    const midY = (pts[0].y + pts[1].y) / 2;
+    pinchState = {
+      dist: pointerDist(pts[0], pts[1]),
+      crop: cropMode,
+      vpZoom: vp.zoom,
+      srcZoom: parseFloat(get('srcZoom').value) / 100,
+      nx: (midX - rect.left) / rect.width,
+      ny: (midY - rect.top) / rect.height,
+      midX, midY,
+    };
+    touchPan = null;
+    touchCrop = null;
+    return;
+  }
+
+  if (activePointers.size === 1) {
+    if (cropMode) {
+      touchCrop = {
+        sx: e.clientX, sy: e.clientY,
+        ox: parseFloat(get('srcOffX').value) / 100,
+        oy: parseFloat(get('srcOffY').value) / 100,
+        z:  parseFloat(get('srcZoom').value) / 100,
+      };
+    } else {
+      touchPan = { sx: e.clientX, sy: e.clientY, cx: vp.cx, cy: vp.cy };
+      canvasWrap.classList.add('panning');
+    }
+  }
+}
+
+function onPointerMove(e) {
+  if (e.pointerType !== 'touch') return;
+  if (!activePointers.has(e.pointerId)) return;
+  activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  updateMouseTrail(e.clientX, e.clientY);
+
+  if (activePointers.size === 2 && pinchState) {
+    const pts = [...activePointers.values()];
+    const dist = pointerDist(pts[0], pts[1]);
+    const factor = dist / pinchState.dist;
+    if (pinchState.crop) {
+      const targetZ = Math.max(1, Math.min(8, pinchState.srcZoom * factor));
+      const oldZ = parseFloat(get('srcZoom').value) / 100;
+      if (oldZ > 0) zoomSourceAt(targetZ / oldZ, pinchState.nx, pinchState.ny);
+    } else {
+      const newZoom = Math.max(0.05, Math.min(16, pinchState.vpZoom * factor));
+      const sc = newZoom / vp.zoom;
+      const rect = canvasWrap.getBoundingClientRect();
+      const mx = pinchState.midX - rect.left - rect.width / 2;
+      const my = pinchState.midY - rect.top - rect.height / 2;
+      vp.cx = mx + (vp.cx - mx) * sc;
+      vp.cy = my + (vp.cy - my) * sc;
+      vp.zoom = newZoom;
+      applyVP();
+    }
+    return;
+  }
+
+  if (touchCrop) {
+    const rect = canvasWrap.getBoundingClientRect();
+    const dx = -(e.clientX - touchCrop.sx) / (rect.width * touchCrop.z);
+    const dy = -(e.clientY - touchCrop.sy) / (rect.height * touchCrop.z);
+    const half = 0.5 / touchCrop.z;
+    get('srcOffX').value = Math.round(Math.max(half, Math.min(1 - half, touchCrop.ox + dx)) * 100);
+    get('srcOffY').value = Math.round(Math.max(half, Math.min(1 - half, touchCrop.oy + dy)) * 100);
+    return;
+  }
+
+  if (touchPan) {
+    vp.cx = touchPan.cx + (e.clientX - touchPan.sx);
+    vp.cy = touchPan.cy + (e.clientY - touchPan.sy);
+    applyVP();
+  }
+}
+
+function onPointerEnd(e) {
+  if (e.pointerType !== 'touch') return;
+  activePointers.delete(e.pointerId);
+  if (activePointers.size < 2) pinchState = null;
+  if (activePointers.size === 0) {
+    touchPan = null;
+    touchCrop = null;
+    canvasWrap.classList.remove('panning');
+    mouseState.over = false;
+  }
+}
+
+canvasWrap.addEventListener('pointerdown', onPointerDown);
+canvasWrap.addEventListener('pointermove', onPointerMove);
+canvasWrap.addEventListener('pointerup', onPointerEnd);
+canvasWrap.addEventListener('pointercancel', onPointerEnd);
+
+// Double-tap to fit (mobile)
+let lastTap = 0;
+canvasWrap.addEventListener('pointerup', e => {
+  if (e.pointerType !== 'touch') return;
+  const now = Date.now();
+  if (now - lastTap < 300) { resetVP(); lastTap = 0; }
+  else lastTap = now;
+});
+
+// ── Mobile chrome ─────────────────────────────────────────────
+get('btn-mobile-open')?.addEventListener('click', () => get('file-input').click());
+get('btn-mobile-settings')?.addEventListener('click', () => setPanelOpen(!document.body.classList.contains('panel-open')));
+get('btn-mobile-crop')?.addEventListener('click', () => setCropMode(!cropMode));
+get('panel-backdrop')?.addEventListener('click', () => setPanelOpen(false));
 
 // ── Double-click → fit ────────────────────────────────────────
 canvasWrap.addEventListener('dblclick', resetVP);
