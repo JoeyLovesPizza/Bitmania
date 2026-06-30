@@ -51,6 +51,8 @@ canvas#c {
   will-change: transform;
   /* width, height, and margins are set dynamically in resize() */
 }
+body:not(.has-source) canvas#c { visibility: hidden; }
+body:not(.has-source) #canvas-handles { display: none; }
 /* Drop shadow + outline so a custom-size canvas reads as a "document" */
 canvas#c.custom-size {
   box-shadow: 0 8px 48px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.07);
@@ -1675,14 +1677,16 @@ float kernelAscii(vec2 aUV, float cs, float ca, float ia) {
 // ════════════════════════════════════════════════════════════════
 void main() {
   if (!u_hasImage) {
-    // Dark dot grid background
+    // Dark dot grid — matches #canvas-wrap CSS, not u_bgColor (often white)
     float gridSize = 24.0;
     vec2 cell = mod(gl_FragCoord.xy, vec2(gridSize));
     float d = length(cell - vec2(gridSize * 0.5));
     float dotR = 2.0;
     float fw = 1.0;
     float dotMask = 1.0 - smoothstep(dotR - fw, dotR + fw, d);
-    vec3 dotCol = mix(u_bgColor, clamp(u_bgColor - vec3(0.12), vec3(0.0), vec3(1.0)), dotMask);
+    vec3 gridBg  = vec3(0.078, 0.078, 0.078);   // #141414
+    vec3 gridDot = vec3(0.165, 0.165, 0.165);   // #2a2a2a
+    vec3 dotCol = mix(gridBg, gridDot, dotMask);
     fragColor = vec4(dotCol, u_layerBMode ? dotMask : 1.0);
     return;
   }
@@ -2027,7 +2031,7 @@ const videoEl  = document.getElementById('source-video');
 // null  = auto (fills the wrap container at DPR)
 // {w,h} = fixed render resolution, canvas shown at 1:1 CSS px,
 //         viewport zoom auto-fits it inside the wrap.
-let customSize = { w: 512, h: 512 };
+let customSize = null;   // set when a source image/video is loaded
 let imgNaturalW = 512, imgNaturalH = 512;   // track source dims for "auto" reset
 
 function initTex(source, w, h) {
@@ -2042,6 +2046,7 @@ function initTex(source, w, h) {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   imgAspect = w / h;
   hasImage  = true;
+  document.body.classList.add('has-source');
   get('no-img').style.display = 'none';
 }
 
@@ -2277,6 +2282,23 @@ function resize() {
   const wrapH = wrap.clientHeight;
   if (!wrapW || !wrapH) return;
 
+  const handles = get('canvas-handles');
+
+  // No source yet — keep a 1×1 off-screen buffer; the wrap's CSS dot grid shows through.
+  if (!hasImage) {
+    canvas.classList.remove('custom-size');
+    canvas.style.width = canvas.style.height = '1px';
+    canvas.style.marginLeft = canvas.style.marginTop = '-0.5px';
+    handles.style.width = handles.style.height = '1px';
+    handles.style.marginLeft = handles.style.marginTop = '-0.5px';
+    if (canvas.width !== 1 || canvas.height !== 1) {
+      canvas.width = canvas.height = 1;
+      gl.viewport(0, 0, 1, 1);
+    }
+    get('res-read').textContent = '—';
+    return;
+  }
+
   let cssW, cssH, renderW, renderH;
 
   if (customSize) {
@@ -2304,7 +2326,6 @@ function resize() {
   canvas.style.marginTop  = (-cssH / 2) + 'px';
 
   // Sync handles overlay to same box as canvas
-  const handles = get('canvas-handles');
   handles.style.width      = cssW + 'px';
   handles.style.height     = cssH + 'px';
   handles.style.marginLeft = (-cssW / 2) + 'px';
@@ -2483,6 +2504,7 @@ function render(now) {
 
 function _renderInner(now) {
   resize();
+  if (!hasImage) return;
   updateLabels();
   ensureLayerFBOs();
   if (!layerFBOs.a) return;   // FBOs not ready yet (0-size canvas on first tick)
@@ -2625,6 +2647,7 @@ function loadFile(file) {
       imgNaturalH = videoEl.videoHeight;
       imgAspect   = imgNaturalW / imgNaturalH;
       hasImage    = true;
+      document.body.classList.add('has-source');
 
       // Bootstrap the texture with a 1×1 opaque-black pixel so it is
       // immediately COMPLETE (valid for sampling). uploadVideoFrame() will
@@ -3007,6 +3030,7 @@ function autoSizeCanvas(srcW, srcH) {
 }
 
 function resetVP() {
+  if (!customSize) return;
   // Fit the canvas inside the wrap with a small margin so the dot-grid surround is visible
   const wrap  = document.getElementById('canvas-wrap');
   const wrapW = wrap.clientWidth  || 1;
