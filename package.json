@@ -1,0 +1,14 @@
+{
+  "name": "bitmania",
+  "private": true,
+  "description": "Halftone Playground — regression test harness",
+  "scripts": {
+    "test": "playwright test",
+    "test:regression": "playwright test",
+    "test:headed": "playwright test --headed",
+    "report:open": "playwright show-report playwright-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0"
+  }
+}
