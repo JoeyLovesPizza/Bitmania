@@ -1,0 +1,1344 @@
+{
+  "config": {
+    "argv": [
+      "/opt/hostedtoolcache/node/22.23.0/x64/bin/node",
+      "/home/runner/work/Bitmania/Bitmania/node_modules/.bin/playwright",
+      "test"
+    ],
+    "configFile": "/home/runner/work/Bitmania/Bitmania/playwright.config.js",
+    "rootDir": "/home/runner/work/Bitmania/Bitmania/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/JoeyLovesPizza/Bitmania/commit/51391b14c173935dc133fe866a934339fd06e67a",
+        "commitHash": "51391b14c173935dc133fe866a934339fd06e67a",
+        "buildHref": "https://github.com/JoeyLovesPizza/Bitmania/actions/runs/28448676288"
+      },
+      "gitCommit": {
+        "shortHash": "51391b1",
+        "hash": "51391b14c173935dc133fe866a934339fd06e67a",
+        "subject": "Hide empty canvas and match workspace dot grid before image load (#1)",
+        "body": "Hide empty canvas and match workspace dot grid before image load (#1)\n\nBefore dropping an image, a 512×512 canvas rendered with the default white\nbackground color, producing a visible white square on the dark workspace.\n\n- Hide the canvas and resize handles until a source is loaded\n- Defer custom canvas size until an image or video is opened\n- Use fixed dark grid colors in the no-image shader branch\n- Skip the render loop and keep a 1×1 buffer when no source is present\n\nCo-authored-by: Cursor Agent <cursoragent@cursor.com>\nCo-authored-by: Joey Grillo <JoeyLovesPizza@users.noreply.github.com>",
+        "author": {
+          "name": "Joey Grillo",
+          "email": "joseph.m.grillo@gmail.com",
+          "time": 1782826728000
+        },
+        "committer": {
+          "name": "GitHub",
+          "email": "noreply@github.com",
+          "time": 1782826728000
+        },
+        "branch": "main"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/Bitmania/Bitmania/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/JoeyLovesPizza/Bitmania/commit/51391b14c173935dc133fe866a934339fd06e67a",
+            "commitHash": "51391b14c173935dc133fe866a934339fd06e67a",
+            "buildHref": "https://github.com/JoeyLovesPizza/Bitmania/actions/runs/28448676288"
+          },
+          "gitCommit": {
+            "shortHash": "51391b1",
+            "hash": "51391b14c173935dc133fe866a934339fd06e67a",
+            "subject": "Hide empty canvas and match workspace dot grid before image load (#1)",
+            "body": "Hide empty canvas and match workspace dot grid before image load (#1)\n\nBefore dropping an image, a 512×512 canvas rendered with the default white\nbackground color, producing a visible white square on the dark workspace.\n\n- Hide the canvas and resize handles until a source is loaded\n- Defer custom canvas size until an image or video is opened\n- Use fixed dark grid colors in the no-image shader branch\n- Skip the render loop and keep a 1×1 buffer when no source is present\n\nCo-authored-by: Cursor Agent <cursoragent@cursor.com>\nCo-authored-by: Joey Grillo <JoeyLovesPizza@users.noreply.github.com>",
+            "author": {
+              "name": "Joey Grillo",
+              "email": "joseph.m.grillo@gmail.com",
+              "time": 1782826728000
+            },
+            "committer": {
+              "name": "GitHub",
+              "email": "noreply@github.com",
+              "time": 1782826728000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/runner/work/Bitmania/Bitmania/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ],
+      [
+        "junit",
+        {
+          "outputFile": "test-results/junit.xml"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.1",
+    "workers": 1,
+    "webServer": {
+      "command": "python3 -m http.server 4173",
+      "url": "http://127.0.0.1:4173",
+      "reuseExistingServer": false,
+      "timeout": 30000
+    }
+  },
+  "suites": [
+    {
+      "title": "regression.spec.js",
+      "file": "regression.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Bitmania regression",
+          "file": "regression.spec.js",
+          "line": 79,
+          "column": 6,
+          "specs": [
+            {
+              "title": "loads with WebGL2 and no shader errors",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10306,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:83:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:83:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-30T13:39:35.822Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    },
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10639,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:83:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:83:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-06-30T13:39:47.860Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "3fc0d7e29e853a8f9411-761f990f64651c07f161",
+              "file": "regression.spec.js",
+              "line": 80,
+              "column": 3
+            },
+            {
+              "title": "initializes canvas with valid dimensions",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10312,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:92:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:92:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-30T13:39:59.183Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    },
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10587,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:92:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:92:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-06-30T13:40:10.027Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "3fc0d7e29e853a8f9411-3ff7075490e7e777851e",
+              "file": "regression.spec.js",
+              "line": 90,
+              "column": 3
+            },
+            {
+              "title": "loads a fixture image and updates status",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10303,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:101:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:101:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-30T13:40:21.296Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    },
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10520,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:101:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:101:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-06-30T13:40:32.137Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "3fc0d7e29e853a8f9411-efa9f8a612c288b428b9",
+              "file": "regression.spec.js",
+              "line": 99,
+              "column": 3
+            },
+            {
+              "title": "switches across all pattern modes",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10309,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:112:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:112:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-30T13:40:43.318Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    },
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10552,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:112:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:112:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-06-30T13:40:54.157Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "3fc0d7e29e853a8f9411-4cde22fd5968a3c9b11e",
+              "file": "regression.spec.js",
+              "line": 110,
+              "column": 3
+            },
+            {
+              "title": "applies built-in presets",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10330,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:137:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:137:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-30T13:41:05.397Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-applies-built-in-presets-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-applies-built-in-presets-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-applies-built-in-presets-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    },
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10550,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:137:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:137:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-06-30T13:41:16.267Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-applies-built-in-presets-chromium-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-applies-built-in-presets-chromium-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-applies-built-in-presets-chromium-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-applies-built-in-presets-chromium-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "3fc0d7e29e853a8f9411-e5bc9440a07fc9814ea1",
+              "file": "regression.spec.js",
+              "line": 135,
+              "column": 3
+            },
+            {
+              "title": "reset restores defaults",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10301,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:152:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:152:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-30T13:41:27.508Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-reset-restores-defaults-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-reset-restores-defaults-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-reset-restores-defaults-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    },
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10519,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:152:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:152:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-06-30T13:41:38.352Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-reset-restores-defaults-chromium-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-reset-restores-defaults-chromium-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-reset-restores-defaults-chromium-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-reset-restores-defaults-chromium-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "3fc0d7e29e853a8f9411-83b3f7ead3f146ccafde",
+              "file": "regression.spec.js",
+              "line": 150,
+              "column": 3
+            },
+            {
+              "title": "viewport zoom controls update status",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10302,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:166:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:166:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-30T13:41:49.535Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    },
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10575,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:166:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:166:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-06-30T13:42:00.383Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "3fc0d7e29e853a8f9411-64db5924a0b504c02fb2",
+              "file": "regression.spec.js",
+              "line": 164,
+              "column": 3
+            },
+            {
+              "title": "exports a PNG download",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10316,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:182:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:182:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-30T13:42:11.653Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-exports-a-PNG-download-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-exports-a-PNG-download-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-exports-a-PNG-download-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    },
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10558,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:182:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:182:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-06-30T13:42:22.516Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-exports-a-PNG-download-chromium-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-exports-a-PNG-download-chromium-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-exports-a-PNG-download-chromium-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-exports-a-PNG-download-chromium-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "3fc0d7e29e853a8f9411-ca5261cffe934521ae24",
+              "file": "regression.spec.js",
+              "line": 180,
+              "column": 3
+            },
+            {
+              "title": "toggles Layer B overlay",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10311,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:198:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:198:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-30T13:42:33.770Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-toggles-Layer-B-overlay-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-toggles-Layer-B-overlay-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-toggles-Layer-B-overlay-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    },
+                    {
+                      "workerIndex": 17,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10557,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:198:11",
+                        "location": {
+                          "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                          "column": 36,
+                          "line": 20
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m \u001b[90m/** @param {import('@playwright/test').Page} page */\u001b[39m\n \u001b[90m 19 |\u001b[39m \u001b[36masync\u001b[39m \u001b[36mfunction\u001b[39m waitForRenderer(page) {\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#c'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForFunction(() \u001b[33m=>\u001b[39m {\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m canvas \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mgetElementById(\u001b[32m'c'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 23 |\u001b[39m     \u001b[36mconst\u001b[39m gl \u001b[33m=\u001b[39m canvas \u001b[33m&&\u001b[39m canvas\u001b[33m.\u001b[39mgetContext(\u001b[32m'webgl2'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                            "column": 36,
+                            "line": 20
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('#c')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#c')\u001b[22m\n\u001b[2m    23 × locator resolved to <canvas id=\"c\" width=\"1\" height=\"1\"></canvas>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  18 | /** @param {import('@playwright/test').Page} page */\n  19 | async function waitForRenderer(page) {\n> 20 |   await expect(page.locator('#c')).toBeVisible();\n     |                                    ^\n  21 |   await page.waitForFunction(() => {\n  22 |     const canvas = document.getElementById('c');\n  23 |     const gl = canvas && canvas.getContext('webgl2');\n    at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)\n    at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:198:11"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-06-30T13:42:44.610Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-toggles-Layer-B-overlay-chromium-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-toggles-Layer-B-overlay-chromium-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-toggles-Layer-B-overlay-chromium-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/home/runner/work/Bitmania/Bitmania/test-results/regression-Bitmania-regression-toggles-Layer-B-overlay-chromium-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js",
+                        "column": 36,
+                        "line": 20
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "3fc0d7e29e853a8f9411-4a07c24431f9d66d7a98",
+              "file": "regression.spec.js",
+              "line": 196,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-06-30T13:39:35.230Z",
+    "duration": 200220.17200000002,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 9,
+    "flaky": 0
+  }
+}

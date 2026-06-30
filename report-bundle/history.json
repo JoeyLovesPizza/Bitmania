@@ -1,0 +1,18 @@
+{
+  "runs": [
+    {
+      "id": "2026-06-30T13-42-55-780Z",
+      "timestamp": "2026-06-30T13:42:55.780Z",
+      "status": "failed",
+      "passed": 0,
+      "failed": 18,
+      "skipped": 0,
+      "total": 18,
+      "durationMs": 187847,
+      "sha": "51391b1",
+      "ref": "main",
+      "runId": "28448676288",
+      "runNumber": "3"
+    }
+  ]
+}

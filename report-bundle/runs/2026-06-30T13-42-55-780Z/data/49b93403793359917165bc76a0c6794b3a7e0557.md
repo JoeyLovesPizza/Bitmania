@@ -1,0 +1,237 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: regression.spec.js >> Bitmania regression >> switches across all pattern modes
+- Location: tests/regression.spec.js:110:3
+
+# Error details
+
+```
+Error: expect(locator).toBeVisible() failed
+
+Locator:  locator('#c')
+Expected: visible
+Received: hidden
+Timeout:  10000ms
+
+Call log:
+  - Expect "toBeVisible" with timeout 10000ms
+  - waiting for locator('#c')
+    23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+       - unexpected value "hidden"
+
+```
+
+```yaml
+- img
+- paragraph: DRAG & DROP or open an image or video
+- text: Open File CELL — PATTERN — RESOLUTION — CMYK OFF ZOOM 100%
+- button "−"
+- button "+"
+- button "Fit"
+- complementary:
+  - heading "HALFTONE" [level=1]
+  - button "↺ Reset"
+  - button "↓ PNG"
+  - text: 📁 Open
+  - combobox:
+    - option "— Presets —" [selected]
+  - button "+ Save"
+  - text: Image & Grid ▾ Cell Size
+  - slider: "12"
+  - text: 12px Grid Scale
+  - slider: "100"
+  - text: 1.00 Hex Grid
+  - checkbox
+  - text: brick row stagger Canvas — Canvas Size ▾ Source Crop ▾ Zoom
+  - slider: "100"
+  - text: 1.00× Offset X
+  - slider: "50"
+  - text: 0.50 Offset Y
+  - slider: "50"
+  - text: "0.50"
+  - button "Fill Canvas"
+  - button "Reset"
+  - text: Tip ⌥ scroll to zoom · ⌥ drag to pan Tone / Coverage ▾ Contrast
+  - slider: "0"
+  - text: 0 Brightness
+  - slider: "0"
+  - text: 0 Gamma
+  - slider: "100"
+  - text: 1.00 Min Coverage
+  - slider: "0"
+  - text: 0.00 Max Coverage
+  - slider: "100"
+  - text: 1.00 Pattern ▾ Type
+  - combobox:
+    - option "Dots" [selected]
+    - option "Lines"
+    - option "Rings"
+    - option "CMYK"
+    - option "ASCII"
+    - option "Mix"
+  - text: Invert
+  - checkbox [checked]
+  - text: dark → large dots Angle
+  - slider: "45"
+  - text: 45° Dot Size
+  - slider: "90"
+  - text: 0.90 Edge Smooth
+  - slider: "20"
+  - text: 2.0 Stylistic ▾ Gooey Merge
+  - slider: "0"
+  - text: 0.00 Break Grid
+  - slider: "0"
+  - text: 0.00 Noise
+  - slider: "0"
+  - text: 0.00 Colors ▾ Background Mode
+  - combobox:
+    - option "Solid" [selected]
+    - option "Linear Gradient"
+    - option "Radial Gradient"
+  - text: Color 1
+  - textbox: "#ffffff"
+  - text: Foreground Mode
+  - combobox:
+    - option "Solid" [selected]
+    - option "Linear Gradient"
+    - option "Radial Gradient"
+  - text: Color 1
+  - textbox: "#000000"
+  - text: Dot Color Source Image Color
+  - checkbox
+  - text: dots sample the image Global ▾ Animate
+  - checkbox
+  - text: drift angle + grid Tween ▾ Layer B ▾ Mouse Trail ▾
+```
+
+# Test source
+
+```ts
+  1   | // @ts-check
+  2   | const { test, expect } = require('@playwright/test');
+  3   | const path = require('path');
+  4   | const fs = require('fs');
+  5   | 
+  6   | const FIXTURE = path.join(__dirname, 'fixtures', 'sample.png');
+  7   | 
+  8   | /** @param {import('@playwright/test').Page} page */
+  9   | async function collectConsoleErrors(page) {
+  10  |   const errors = [];
+  11  |   page.on('console', (msg) => {
+  12  |     if (msg.type() === 'error') errors.push(msg.text());
+  13  |   });
+  14  |   page.on('pageerror', (err) => errors.push(String(err)));
+  15  |   return errors;
+  16  | }
+  17  | 
+  18  | /** @param {import('@playwright/test').Page} page */
+  19  | async function waitForRenderer(page) {
+> 20  |   await expect(page.locator('#c')).toBeVisible();
+      |                                    ^ Error: expect(locator).toBeVisible() failed
+  21  |   await page.waitForFunction(() => {
+  22  |     const canvas = document.getElementById('c');
+  23  |     const gl = canvas && canvas.getContext('webgl2');
+  24  |     return !!gl && !gl.isContextLost();
+  25  |   });
+  26  |   await page.waitForTimeout(300);
+  27  | }
+  28  | 
+  29  | /** @param {import('@playwright/test').Page} page */
+  30  | async function loadFixtureImage(page) {
+  31  |   await page.locator('#file-input').setInputFiles(FIXTURE);
+  32  |   await expect(page.locator('#no-img')).toBeHidden({ timeout: 15_000 });
+  33  |   await page.waitForTimeout(500);
+  34  | }
+  35  | 
+  36  | /** @param {import('@playwright/test').Page} page */
+  37  | async function readCanvasPixelVariance(page) {
+  38  |   return page.evaluate(() => {
+  39  |     const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('c'));
+  40  |     const gl = canvas.getContext('webgl2');
+  41  |     if (!gl) return { ok: false, reason: 'no-webgl2' };
+  42  | 
+  43  |     const w = canvas.width;
+  44  |     const h = canvas.height;
+  45  |     if (!w || !h) return { ok: false, reason: 'zero-size' };
+  46  | 
+  47  |     const fb = gl.createFramebuffer();
+  48  |     gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+  49  |     gl.framebufferTexture2D(
+  50  |       gl.FRAMEBUFFER,
+  51  |       gl.COLOR_ATTACHMENT0,
+  52  |       gl.TEXTURE_2D,
+  53  |       null,
+  54  |       0,
+  55  |     );
+  56  | 
+  57  |     // Read from default framebuffer (canvas)
+  58  |     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  59  |     const pixels = new Uint8Array(w * h * 4);
+  60  |     gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+  61  |     gl.deleteFramebuffer(fb);
+  62  | 
+  63  |     let sum = 0;
+  64  |     let sumSq = 0;
+  65  |     const step = Math.max(1, Math.floor((w * h) / 4096));
+  66  |     let count = 0;
+  67  |     for (let i = 0; i < pixels.length; i += 4 * step) {
+  68  |       const v = pixels[i] + pixels[i + 1] + pixels[i + 2];
+  69  |       sum += v;
+  70  |       sumSq += v * v;
+  71  |       count += 1;
+  72  |     }
+  73  |     const mean = sum / count;
+  74  |     const variance = sumSq / count - mean * mean;
+  75  |     return { ok: true, width: w, height: h, variance, mean };
+  76  |   });
+  77  | }
+  78  | 
+  79  | test.describe('Bitmania regression', () => {
+  80  |   test('loads with WebGL2 and no shader errors', async ({ page }) => {
+  81  |     const errors = await collectConsoleErrors(page);
+  82  |     await page.goto('/index.html');
+  83  |     await waitForRenderer(page);
+  84  | 
+  85  |     expect(errors.filter((e) => /shader|webgl/i.test(e))).toEqual([]);
+  86  |     await expect(page.locator('#panel')).toBeVisible();
+  87  |     await expect(page.locator('#status #s-pat')).toContainText('DOTS');
+  88  |   });
+  89  | 
+  90  |   test('initializes canvas with valid dimensions', async ({ page }) => {
+  91  |     await page.goto('/index.html');
+  92  |     await waitForRenderer(page);
+  93  |     const stats = await readCanvasPixelVariance(page);
+  94  |     expect(stats.ok).toBe(true);
+  95  |     expect(stats.width).toBeGreaterThan(0);
+  96  |     expect(stats.height).toBeGreaterThan(0);
+  97  |   });
+  98  | 
+  99  |   test('loads a fixture image and updates status', async ({ page }) => {
+  100 |     await page.goto('/index.html');
+  101 |     await waitForRenderer(page);
+  102 |     await loadFixtureImage(page);
+  103 | 
+  104 |     await expect(page.locator('#s-res')).not.toContainText('—');
+  105 |     const stats = await readCanvasPixelVariance(page);
+  106 |     expect(stats.ok).toBe(true);
+  107 |     expect(stats.variance).toBeGreaterThan(0);
+  108 |   });
+  109 | 
+  110 |   test('switches across all pattern modes', async ({ page }) => {
+  111 |     await page.goto('/index.html');
+  112 |     await waitForRenderer(page);
+  113 |     await loadFixtureImage(page);
+  114 | 
+  115 |     const patterns = [
+  116 |       { value: '0', label: 'DOTS' },
+  117 |       { value: '1', label: 'LINES' },
+  118 |       { value: '2', label: 'RINGS' },
+  119 |       { value: '3', label: 'CMYK' },
+  120 |       { value: '4', label: 'ASCII' },
+```

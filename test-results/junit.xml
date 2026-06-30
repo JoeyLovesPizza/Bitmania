@@ -1,0 +1,913 @@
+<testsuites id="" name="" tests="9" failures="9" skipped="0" errors="0" time="200.22017200000002">
+<testsuite name="regression.spec.js" timestamp="2026-06-30T13:39:35.433Z" hostname="chromium" tests="9" failures="9" skipped="0" time="187.847" errors="0">
+<testcase name="Bitmania regression › loads with WebGL2 and no shader errors" classname="regression.spec.js" time="20.945">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium-retry1/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium-retry1/trace.zip]]
+]]>
+</system-out>
+<failure message="expect(locator).toBeVisible() failed" type="expect.toBeVisible">
+<![CDATA[  [chromium] › regression.spec.js:80:3 › Bitmania regression › loads with WebGL2 and no shader errors 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:83:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:83:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/regression-Bitmania-regres-4b7b4-WebGL2-and-no-shader-errors-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="Bitmania regression › initializes canvas with valid dimensions" classname="regression.spec.js" time="20.899">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium-retry1/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium-retry1/trace.zip]]
+]]>
+</system-out>
+<failure message="expect(locator).toBeVisible() failed" type="expect.toBeVisible">
+<![CDATA[  [chromium] › regression.spec.js:90:3 › Bitmania regression › initializes canvas with valid dimensions 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:92:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:92:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/regression-Bitmania-regres-de490-anvas-with-valid-dimensions-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="Bitmania regression › loads a fixture image and updates status" classname="regression.spec.js" time="20.823">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium-retry1/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium-retry1/trace.zip]]
+]]>
+</system-out>
+<failure message="expect(locator).toBeVisible() failed" type="expect.toBeVisible">
+<![CDATA[  [chromium] › regression.spec.js:99:3 › Bitmania regression › loads a fixture image and updates status 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:101:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:101:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/regression-Bitmania-regres-f3237-re-image-and-updates-status-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="Bitmania regression › switches across all pattern modes" classname="regression.spec.js" time="20.861">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium-retry1/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium-retry1/trace.zip]]
+]]>
+</system-out>
+<failure message="expect(locator).toBeVisible() failed" type="expect.toBeVisible">
+<![CDATA[  [chromium] › regression.spec.js:110:3 › Bitmania regression › switches across all pattern modes ──
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:112:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:112:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/regression-Bitmania-regres-7e2c8-es-across-all-pattern-modes-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="Bitmania regression › applies built-in presets" classname="regression.spec.js" time="20.88">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|regression-Bitmania-regression-applies-built-in-presets-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regression-applies-built-in-presets-chromium/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regression-applies-built-in-presets-chromium/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regression-applies-built-in-presets-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regression-applies-built-in-presets-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regression-applies-built-in-presets-chromium-retry1/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regression-applies-built-in-presets-chromium-retry1/trace.zip]]
+]]>
+</system-out>
+<failure message="expect(locator).toBeVisible() failed" type="expect.toBeVisible">
+<![CDATA[  [chromium] › regression.spec.js:135:3 › Bitmania regression › applies built-in presets ───────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:137:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-applies-built-in-presets-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-applies-built-in-presets-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regression-applies-built-in-presets-chromium/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:137:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-applies-built-in-presets-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-applies-built-in-presets-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regression-applies-built-in-presets-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-applies-built-in-presets-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/regression-Bitmania-regression-applies-built-in-presets-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="Bitmania regression › reset restores defaults" classname="regression.spec.js" time="20.82">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|regression-Bitmania-regression-reset-restores-defaults-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regression-reset-restores-defaults-chromium/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regression-reset-restores-defaults-chromium/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regression-reset-restores-defaults-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regression-reset-restores-defaults-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regression-reset-restores-defaults-chromium-retry1/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regression-reset-restores-defaults-chromium-retry1/trace.zip]]
+]]>
+</system-out>
+<failure message="expect(locator).toBeVisible() failed" type="expect.toBeVisible">
+<![CDATA[  [chromium] › regression.spec.js:150:3 › Bitmania regression › reset restores defaults ────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:152:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-reset-restores-defaults-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-reset-restores-defaults-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regression-reset-restores-defaults-chromium/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:152:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-reset-restores-defaults-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-reset-restores-defaults-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regression-reset-restores-defaults-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-reset-restores-defaults-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/regression-Bitmania-regression-reset-restores-defaults-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="Bitmania regression › viewport zoom controls update status" classname="regression.spec.js" time="20.877">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium-retry1/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium-retry1/trace.zip]]
+]]>
+</system-out>
+<failure message="expect(locator).toBeVisible() failed" type="expect.toBeVisible">
+<![CDATA[  [chromium] › regression.spec.js:164:3 › Bitmania regression › viewport zoom controls update status 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:166:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:166:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/regression-Bitmania-regres-d243f-zoom-controls-update-status-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="Bitmania regression › exports a PNG download" classname="regression.spec.js" time="20.874">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|regression-Bitmania-regression-exports-a-PNG-download-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regression-exports-a-PNG-download-chromium/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regression-exports-a-PNG-download-chromium/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regression-exports-a-PNG-download-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regression-exports-a-PNG-download-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regression-exports-a-PNG-download-chromium-retry1/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regression-exports-a-PNG-download-chromium-retry1/trace.zip]]
+]]>
+</system-out>
+<failure message="expect(locator).toBeVisible() failed" type="expect.toBeVisible">
+<![CDATA[  [chromium] › regression.spec.js:180:3 › Bitmania regression › exports a PNG download ─────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:182:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-exports-a-PNG-download-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-exports-a-PNG-download-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regression-exports-a-PNG-download-chromium/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:182:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-exports-a-PNG-download-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-exports-a-PNG-download-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regression-exports-a-PNG-download-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-exports-a-PNG-download-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/regression-Bitmania-regression-exports-a-PNG-download-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+<testcase name="Bitmania regression › toggles Layer B overlay" classname="regression.spec.js" time="20.868">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|regression-Bitmania-regression-toggles-Layer-B-overlay-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regression-toggles-Layer-B-overlay-chromium/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regression-toggles-Layer-B-overlay-chromium/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regression-toggles-Layer-B-overlay-chromium-retry1/test-failed-1.png]]
+
+[[ATTACHMENT|regression-Bitmania-regression-toggles-Layer-B-overlay-chromium-retry1/video.webm]]
+
+[[ATTACHMENT|regression-Bitmania-regression-toggles-Layer-B-overlay-chromium-retry1/error-context.md]]
+
+[[ATTACHMENT|regression-Bitmania-regression-toggles-Layer-B-overlay-chromium-retry1/trace.zip]]
+]]>
+</system-out>
+<failure message="expect(locator).toBeVisible() failed" type="expect.toBeVisible">
+<![CDATA[  [chromium] › regression.spec.js:196:3 › Bitmania regression › toggles Layer B overlay ────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:198:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-toggles-Layer-B-overlay-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-toggles-Layer-B-overlay-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regression-toggles-Layer-B-overlay-chromium/error-context.md
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#c')
+    Expected: visible
+    Received: hidden
+    Timeout:  10000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('#c')
+        23 × locator resolved to <canvas id="c" width="1" height="1"></canvas>
+           - unexpected value "hidden"
+
+
+      18 | /** @param {import('@playwright/test').Page} page */
+      19 | async function waitForRenderer(page) {
+    > 20 |   await expect(page.locator('#c')).toBeVisible();
+         |                                    ^
+      21 |   await page.waitForFunction(() => {
+      22 |     const canvas = document.getElementById('c');
+      23 |     const gl = canvas && canvas.getContext('webgl2');
+        at waitForRenderer (/home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:20:36)
+        at /home/runner/work/Bitmania/Bitmania/tests/regression.spec.js:198:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-toggles-Layer-B-overlay-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-toggles-Layer-B-overlay-chromium-retry1/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/regression-Bitmania-regression-toggles-Layer-B-overlay-chromium-retry1/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../test-results/regression-Bitmania-regression-toggles-Layer-B-overlay-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace ../test-results/regression-Bitmania-regression-toggles-Layer-B-overlay-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+</testcase>
+</testsuite>
+</testsuites>
