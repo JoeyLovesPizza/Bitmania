@@ -16,12 +16,22 @@ async function collectConsoleErrors(page) {
 }
 
 /** @param {import('@playwright/test').Page} page */
-async function waitForRenderer(page) {
-  await expect(page.locator('#c')).toBeVisible();
+async function waitForApp(page) {
   await page.waitForFunction(() => {
     const canvas = document.getElementById('c');
     const gl = canvas && canvas.getContext('webgl2');
     return !!gl && !gl.isContextLost();
+  });
+  await page.waitForTimeout(200);
+}
+
+/** @param {import('@playwright/test').Page} page */
+async function waitForSourceReady(page) {
+  await expect(page.locator('body')).toHaveClass(/has-source/);
+  await expect(page.locator('#c')).toBeVisible();
+  await page.waitForFunction(() => {
+    const canvas = document.getElementById('c');
+    return canvas && canvas.width > 1 && canvas.height > 1;
   });
   await page.waitForTimeout(300);
 }
@@ -30,7 +40,7 @@ async function waitForRenderer(page) {
 async function loadFixtureImage(page) {
   await page.locator('#file-input').setInputFiles(FIXTURE);
   await expect(page.locator('#no-img')).toBeHidden({ timeout: 15_000 });
-  await page.waitForTimeout(500);
+  await waitForSourceReady(page);
 }
 
 /** @param {import('@playwright/test').Page} page */
@@ -80,25 +90,32 @@ test.describe('Bitmania regression', () => {
   test('loads with WebGL2 and no shader errors', async ({ page }) => {
     const errors = await collectConsoleErrors(page);
     await page.goto('/index.html');
-    await waitForRenderer(page);
+    await waitForApp(page);
 
     expect(errors.filter((e) => /shader|webgl/i.test(e))).toEqual([]);
     await expect(page.locator('#panel')).toBeVisible();
-    await expect(page.locator('#status #s-pat')).toContainText('DOTS');
+    await expect(page.locator('#no-img')).toBeVisible();
+    await expect(page.locator('#patternType')).toHaveValue('0');
+    await expect(page.locator('#status #s-pat')).toHaveText('—');
   });
 
-  test('initializes canvas with valid dimensions', async ({ page }) => {
+  test('keeps canvas hidden until a source is loaded', async ({ page }) => {
     await page.goto('/index.html');
-    await waitForRenderer(page);
+    await waitForApp(page);
+
+    await expect(page.locator('body')).not.toHaveClass(/has-source/);
+    await expect(page.locator('#c')).toBeHidden();
+    await expect(page.locator('#no-img')).toBeVisible();
+
     const stats = await readCanvasPixelVariance(page);
     expect(stats.ok).toBe(true);
-    expect(stats.width).toBeGreaterThan(0);
-    expect(stats.height).toBeGreaterThan(0);
+    expect(stats.width).toBe(1);
+    expect(stats.height).toBe(1);
   });
 
   test('loads a fixture image and updates status', async ({ page }) => {
     await page.goto('/index.html');
-    await waitForRenderer(page);
+    await waitForApp(page);
     await loadFixtureImage(page);
 
     await expect(page.locator('#s-res')).not.toContainText('—');
@@ -109,7 +126,7 @@ test.describe('Bitmania regression', () => {
 
   test('switches across all pattern modes', async ({ page }) => {
     await page.goto('/index.html');
-    await waitForRenderer(page);
+    await waitForApp(page);
     await loadFixtureImage(page);
 
     const patterns = [
@@ -134,7 +151,7 @@ test.describe('Bitmania regression', () => {
 
   test('applies built-in presets', async ({ page }) => {
     await page.goto('/index.html');
-    await waitForRenderer(page);
+    await waitForApp(page);
     await loadFixtureImage(page);
 
     const presets = ['newspaper', 'highcontrast', 'fineline', 'gooey', 'rings'];
@@ -149,7 +166,7 @@ test.describe('Bitmania regression', () => {
 
   test('reset restores defaults', async ({ page }) => {
     await page.goto('/index.html');
-    await waitForRenderer(page);
+    await waitForApp(page);
     await loadFixtureImage(page);
 
     await page.locator('#patternType').selectOption('3');
@@ -163,7 +180,7 @@ test.describe('Bitmania regression', () => {
 
   test('viewport zoom controls update status', async ({ page }) => {
     await page.goto('/index.html');
-    await waitForRenderer(page);
+    await waitForApp(page);
     await loadFixtureImage(page);
 
     const before = await page.locator('#s-zoom').textContent();
@@ -179,7 +196,7 @@ test.describe('Bitmania regression', () => {
 
   test('exports a PNG download', async ({ page }) => {
     await page.goto('/index.html');
-    await waitForRenderer(page);
+    await waitForApp(page);
     await loadFixtureImage(page);
 
     const downloadPromise = page.waitForEvent('download');
@@ -195,7 +212,7 @@ test.describe('Bitmania regression', () => {
 
   test('toggles Layer B overlay', async ({ page }) => {
     await page.goto('/index.html');
-    await waitForRenderer(page);
+    await waitForApp(page);
     await loadFixtureImage(page);
 
     await page.evaluate(() => {
