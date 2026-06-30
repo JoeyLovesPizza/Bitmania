@@ -1,0 +1,124 @@
+name: Weekly Regression
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'report-bundle/**'
+      - '**.md'
+  pull_request:
+    branches: [main]
+  schedule:
+    # Mondays at 09:00 UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: regression-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regression:
+    name: Playwright smoke tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Run regression tests
+        id: test
+        run: npm run test:regression
+        continue-on-error: true
+
+      - name: Load prior report history
+        if: always()
+        run: |
+          git fetch origin regression-reports 2>/dev/null || true
+          if git show origin/regression-reports:history.json > prior-history.json 2>/dev/null; then
+            echo "Loaded prior report history"
+          else
+            echo '{"runs":[]}' > prior-history.json
+          fi
+
+      - name: Build report bundle
+        if: always()
+        run: node scripts/publish-report.js
+        env:
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: Upload workflow artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-report-${{ github.run_number }}
+          path: |
+            playwright-report/
+            test-results/
+            report-bundle/
+          retention-days: 30
+
+      - name: Write job summary
+        if: always()
+        run: |
+          STATUS=$(node -e "const s=require('./report-bundle/summary.json'); process.stdout.write(s.summary.status)")
+          PASSED=$(node -e "const s=require('./report-bundle/summary.json'); process.stdout.write(String(s.summary.passed))")
+          FAILED=$(node -e "const s=require('./report-bundle/summary.json'); process.stdout.write(String(s.summary.failed))")
+          TOTAL=$(node -e "const s=require('./report-bundle/summary.json'); process.stdout.write(String(s.summary.total))")
+          {
+            echo "## Regression report"
+            echo ""
+            if [ "$STATUS" = "passed" ]; then
+              echo "✅ **PASSED** — ${PASSED}/${TOTAL} tests"
+            else
+              echo "❌ **FAILED** — ${PASSED}/${TOTAL} passed, ${FAILED} failed"
+            fi
+            echo ""
+            echo "Artifacts from this run are attached to the workflow."
+            echo "The browsable report is pushed to the \`regression-reports\` branch after each run."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish report to regression-reports branch
+        if: always() && github.event_name != 'pull_request'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin regression-reports:regression-reports 2>/dev/null || true
+          if git show-ref --verify --quiet refs/heads/regression-reports; then
+            git checkout regression-reports
+            git pull --rebase origin regression-reports || true
+          else
+            git checkout --orphan regression-reports
+            git rm -rf . 2>/dev/null || true
+          fi
+
+          cp -r report-bundle/* .
+          git add -A
+          git commit -m "chore: regression report run #${{ github.run_number }} (${{ github.sha }})" || echo "No report changes to commit"
+          git push origin regression-reports
+
+      - name: Fail job if tests failed
+        if: steps.test.outcome == 'failure'
+        run: exit 1
