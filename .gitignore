@@ -4,3 +4,8 @@ test-results/
 report-bundle/
 prior-history.json
 .playwright/
+
+# macOS and local Claude Code state
+.DS_Store
+.claude/settings.local.json
+.claude/worktrees/
